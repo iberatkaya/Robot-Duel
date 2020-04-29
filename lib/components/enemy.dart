@@ -24,15 +24,17 @@ class Enemy {
   }
 
   Offset bound(Offset center) {
+    var x = center.dx;
+    var y = center.dy;
     if(moveTo.dx - enemyRect.width / 2 <= 0)
-      center = Offset(enemyRect.width / 2, moveTo.dy);
+      x = enemyRect.width / 2;
     if(moveTo.dy - enemyRect.height / 2 <= 0)
-      center = Offset(moveTo.dx, enemyRect.height / 2);
+      y = enemyRect.height / 2;
     if(moveTo.dx + enemyRect.width / 2 >= game.screenSize.width)
-      center = Offset(game.screenSize.width - enemyRect.width / 2, moveTo.dy);
+      x = game.screenSize.width - enemyRect.width / 2;
     if(moveTo.dy + enemyRect.height / 2 >= game.screenSize.height)
-      center = Offset(moveTo.dx, game.screenSize.height - enemyRect.height / 2);
-    return center;
+      y = game.screenSize.height - enemyRect.height / 2;
+    return Offset(x, y);
   }
 
   void update(double t) {
