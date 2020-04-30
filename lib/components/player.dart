@@ -9,8 +9,6 @@ import 'package:flutter/gestures.dart';
 
 class Player {
   final FlameRPGGame game;
-  Rect playerRect;
-  Paint playerPaint;
   Animation playerAnimation;
   AnimationComponent player;
   Offset moveTo;
@@ -20,9 +18,6 @@ class Player {
   bool setIdle;
 
   Player(this.game, Offset center) {
-//    playerRect = Rect.fromCenter(center: center, height: y, width: x);
-//    playerPaint = Paint();
-//    playerPaint.color = Color(0xffff0000);
     List<Sprite> sprites = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => new Sprite('player/idle/Idle ($i).png')).toList();
     player = AnimationComponent(playerWidth, playerHeight, Animation.spriteList(sprites, loop: true, stepTime: 0.1));
     moveTo = center; 
@@ -35,7 +30,6 @@ class Player {
 
   void render(Canvas c) {
     player.render(c);
-//    c.drawRect(playerRect, playerPaint);
   }
 
   void update(double t) {
@@ -44,10 +38,12 @@ class Player {
       double x = player.x, y = player.y;
       x += diffX;
       y += diffY;
-      if((x - moveTo.dx).abs() <= diffX.abs()){
+      
+      //Round for better stopping conditions at the borders
+      if(double.parse((x - moveTo.dx).abs().toStringAsPrecision(2)) <= double.parse(diffX.abs().toStringAsPrecision(2))){
         diffX = 0;
       }
-      if((y - moveTo.dy).abs() <= diffY.abs()){
+      if(double.parse((y - moveTo.dy).abs().toStringAsPrecision(2)) <= double.parse(diffY.abs().toStringAsPrecision(2))){
         diffY = 0;
       }
       if(diffX == 0 && diffY == 0){
