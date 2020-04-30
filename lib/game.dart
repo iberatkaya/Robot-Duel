@@ -25,9 +25,9 @@ class FlameRPGGame extends Game {
     super.resize(size);
   }
 
-  void onTapDown(TapDownDetails d) {
+  void onTapUp(TapUpDetails d) {
     // handle taps here
-    enemy.onTapDown(d);
+    enemy.onTapUp(d);
   }
 
 

@@ -44,7 +44,7 @@ class Enemy {
     }
   }
 
-  void onTapDown(TapDownDetails d) {
+  void onTapUp(TapUpDetails d) {
     moveTo = d.globalPosition;
   }
 }
