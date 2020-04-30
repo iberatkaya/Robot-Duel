@@ -58,7 +58,6 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
-  print(playing);
     return Scaffold(
         body: Column(
           children: <Widget>[

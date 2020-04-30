@@ -24,7 +24,7 @@ class Player {
 //    playerPaint = Paint();
 //    playerPaint.color = Color(0xffff0000);
     List<Sprite> sprites = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => new Sprite('player/idle/Idle ($i).png')).toList();
-    player = AnimationComponent(playerWidth, playerHeight, Animation.spriteList(sprites, loop: true, stepTime: 0.2));
+    player = AnimationComponent(playerWidth, playerHeight, Animation.spriteList(sprites, loop: true, stepTime: 0.1));
     moveTo = center; 
     diffX = 0;
     diffY = 0;
@@ -75,7 +75,7 @@ class Player {
     else{
       if(setIdle){
         List<Sprite> sprites = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => new Sprite('player/idle/Idle ($i).png')).toList();
-        player.animation = Animation.spriteList(sprites, loop: true, stepTime: 0.2);
+        player.animation = Animation.spriteList(sprites, loop: true, stepTime: 0.1);
         setIdle = false;
       }
       diffX = 0;
@@ -90,8 +90,11 @@ class Player {
     bool reverseY = moveTo.dy - player.y > 0;
     diffX = speed * (reverseX ? 1 : -1);
     diffY = speed * (reverseY ? 1 : -1);
+    diffX = speed * ((moveTo.dx - player.x).abs() / ((moveTo.dx - player.x).abs() + (moveTo.dy - player.y).abs())) * (reverseX ? 1 : -1);
+    diffY = speed * ((moveTo.dy - player.y).abs() / ((moveTo.dx - player.x).abs() + (moveTo.dy - player.y).abs())) * (reverseY ? 1 : -1);
+
     run = true;
     List<Sprite> sprites = [1, 2, 3, 4, 5, 6, 7, 8].map((i) => new Sprite((reverseX ? 'player/run/Run ($i).png' : 'player/run/Run ($i) Flip.png'))).toList();
-    player.animation = Animation.spriteList(sprites, loop: true, stepTime: 0.2);
+    player.animation = Animation.spriteList(sprites, loop: true, stepTime: 0.1);
   }
 }
