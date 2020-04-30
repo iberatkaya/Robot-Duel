@@ -1,14 +1,15 @@
 import 'dart:ui';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
+import 'package:flamerpg/const.dart';
 import 'package:flutter/gestures.dart';
 
-import 'components/enemy.dart';
+import 'components/player.dart';
 
 class FlameRPGGame extends Game {
   Size screenSize;
   double tileSize;
-  Enemy enemy;
+  Player player;
 
   FlameRPGGame(){
     initialize();
@@ -16,7 +17,7 @@ class FlameRPGGame extends Game {
 
   void initialize() async {
     resize(await Flame.util.initialDimensions());
-    enemy = Enemy(this, Offset(screenSize.width * 0.5, screenSize.height * 0.8), tileSize, tileSize);
+    player = Player(this, Offset(screenSize.width * 0.5 - playerWidth / 2, screenSize.height * 0.78 - playerHeight/2));
   }
 
   void resize(Size size) {
@@ -26,8 +27,11 @@ class FlameRPGGame extends Game {
   }
 
   void onTapUp(TapUpDetails d) {
+    if(d.globalPosition.dy <= screenSize.height * 0.11){
+      return;
+    }
     // handle taps here
-    enemy.onTapUp(d);
+    player.onTapUp(d);
   }
 
 
@@ -36,11 +40,10 @@ class FlameRPGGame extends Game {
     Paint bgPaint = Paint();
     bgPaint.color = Color(0xff00f000);
     canvas.drawRect(bgRect, bgPaint);
-    enemy.render(canvas);
+    player.render(canvas);
   }
 
   void update(double t) {
-    // TODO: implement update
-    enemy.update(t);
+    player.update(t);
   }
 }

@@ -20,6 +20,14 @@ void main() async {
   flameUtil.addGestureRecognizer(tapper);
   Flame.audio.load('music.mp3');
   Flame.bgm.play('music.mp3');
+  List<String> playerimgs = [];
+  for(int i=1; i<=10; i++){
+    playerimgs.add("player/idle/Idle ($i).png");
+  }
+  for(int i=1; i<=8; i++){
+    playerimgs.add("player/run/Run ($i).png");
+  }
+  await Flame.images.loadAll(playerimgs);
 
   runApp(
     MaterialApp(
@@ -45,31 +53,34 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
 
-  bool playing = true;
+  bool playing = kIsWeb ? false : true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Column(
           children: <Widget>[
-            Container(
-              color: Colors.green,
-              height: MediaQuery.of(context).size.height * 0.1,
-              child: Row(
-                children: <Widget>[
-                  IconButton(
-                    icon: Icon(playing ? Icons.music_note : Icons.close),
-                    onPressed: () {
-                      if(playing)
-                        Flame.bgm.pause();
-                      else
-                        Flame.bgm.resume();
-                      setState(() {
-                        playing = !playing;
-                      });
-                    },
-                  )
-                ],
+            GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                color: Colors.green,
+                height: MediaQuery.of(context).size.height * 0.1,
+                child: Row(
+                  children: <Widget>[
+                    IconButton(
+                      icon: Icon(playing ? Icons.music_note : Icons.close, size: 32,),
+                      onPressed: () {
+                        if(playing)
+                          Flame.bgm.pause();
+                        else
+                          Flame.bgm.resume();
+                        setState(() {
+                          playing = !playing;
+                        });
+                      },
+                    )
+                  ],
+                ),
               ),
             ),
             ConstrainedBox(
