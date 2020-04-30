@@ -11,7 +11,7 @@ void main() async {
   Util flameUtil = Util();
   if (!kIsWeb) {
     await flameUtil.fullScreen();
-    await flameUtil.setOrientation(DeviceOrientation.landscapeRight);
+    await flameUtil.setOrientation(DeviceOrientation.landscapeLeft);
   }
   FlameRPGGame game = FlameRPGGame();
   Flame.bgm.initialize();
@@ -20,15 +20,22 @@ void main() async {
   flameUtil.addGestureRecognizer(tapper);
   Flame.audio.load('music.mp3');
   Flame.bgm.play('music.mp3');
-  List<String> playerimgs = [];
+  List<String> imgs = [];
   for(int i=1; i<=10; i++){
-    playerimgs.add("player/idle/Idle ($i).png");
+    imgs.add("player/idle/Idle ($i).png");
   }
   for(int i=1; i<=8; i++){
-    playerimgs.add("player/run/Run ($i).png");
-    playerimgs.add("player/run/Run ($i) Flip.png");
+    imgs.add("player/run/Run ($i).png");
+    imgs.add("player/run/Run ($i) Flip.png");
   }
-  await Flame.images.loadAll(playerimgs);
+  for(int i=1; i<=8; i++){
+    imgs.add("player/run/Run ($i).png");
+    imgs.add("player/run/Run ($i) Flip.png");
+  }
+  for(int i=1; i<=2; i++){
+    imgs.add("background ($i).png");
+  }
+  await Flame.images.loadAll(imgs);
 
   runApp(
     MaterialApp(
@@ -64,12 +71,12 @@ class _AppState extends State<App> {
             GestureDetector(
               behavior: HitTestBehavior.opaque,
               child: Container(
-                color: Colors.green,
+                color: Color.fromRGBO(0, 30, 50, 1),
                 height: MediaQuery.of(context).size.height * 0.12,
                 child: Row(
                   children: <Widget>[
                     IconButton(
-                      icon: Icon(playing ? Icons.music_note : Icons.close, size: 24,),
+                      icon: Icon(playing ? Icons.music_note : Icons.close, size: 24, color: Colors.white70),
                       onPressed: () {
                         if(playing)
                           Flame.bgm.pause();
