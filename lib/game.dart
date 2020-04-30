@@ -27,7 +27,7 @@ class FlameRPGGame extends Game {
   }
 
   void onTapUp(TapUpDetails d) {
-    if(d.globalPosition.dy <= screenSize.height * 0.11){
+    if(d.globalPosition.dy <= screenSize.height * 0.13){
       return;
     }
     // handle taps here

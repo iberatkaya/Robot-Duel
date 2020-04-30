@@ -11,7 +11,7 @@ void main() async {
   Util flameUtil = Util();
   if (!kIsWeb) {
     await flameUtil.fullScreen();
-    await flameUtil.setOrientation(DeviceOrientation.portraitUp);
+    await flameUtil.setOrientation(DeviceOrientation.landscapeRight);
   }
   FlameRPGGame game = FlameRPGGame();
   Flame.bgm.initialize();
@@ -26,6 +26,7 @@ void main() async {
   }
   for(int i=1; i<=8; i++){
     playerimgs.add("player/run/Run ($i).png");
+    playerimgs.add("player/run/Run ($i) Flip.png");
   }
   await Flame.images.loadAll(playerimgs);
 
@@ -53,10 +54,11 @@ class App extends StatefulWidget {
 
 class _AppState extends State<App> {
 
-  bool playing = kIsWeb ? false : true;
+  bool playing = true;
 
   @override
   Widget build(BuildContext context) {
+  print(playing);
     return Scaffold(
         body: Column(
           children: <Widget>[
@@ -64,11 +66,11 @@ class _AppState extends State<App> {
               behavior: HitTestBehavior.opaque,
               child: Container(
                 color: Colors.green,
-                height: MediaQuery.of(context).size.height * 0.1,
+                height: MediaQuery.of(context).size.height * 0.12,
                 child: Row(
                   children: <Widget>[
                     IconButton(
-                      icon: Icon(playing ? Icons.music_note : Icons.close, size: 32,),
+                      icon: Icon(playing ? Icons.music_note : Icons.close, size: 24,),
                       onPressed: () {
                         if(playing)
                           Flame.bgm.pause();
@@ -84,7 +86,7 @@ class _AppState extends State<App> {
               ),
             ),
             ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width, maxHeight: MediaQuery.of(context).size.height * 0.9),
+              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width, maxHeight: MediaQuery.of(context).size.height * 0.88),
               child: GestureDetector(
                 onTapUp: widget.game.onTapUp,
                 child: widget.game.widget,

@@ -56,23 +56,19 @@ class Player {
       }
       if(x <= 0){
         x = 0;
-        run = false;
-        setIdle = true;
+        moveTo = Offset(x, moveTo.dy);
       }
       if(y <= 0){
         y = 0;
-        run = false;
-        setIdle = true;
+        moveTo = Offset(moveTo.dx, y);
       }
       if(x + player.width >= game.screenSize.width){
         x = game.screenSize.width - player.width;
-        run = false;
-        setIdle = true;
+        moveTo = Offset(x, moveTo.dy);
       }
       if(y + player.height >= game.screenSize.height){
         y = game.screenSize.height - player.height;
-        run = false;
-        setIdle = true;
+        moveTo = Offset(moveTo.dx, y);
       }
       player.setByPosition(Position(x, y));
     }
@@ -89,11 +85,13 @@ class Player {
 
   void onTapUp(TapUpDetails d) {
     moveTo = Offset(d.globalPosition.dx - player.width / 2, d.globalPosition.dy - player.height);
-    List<Sprite> sprites = [1, 2, 3, 4, 5, 6, 7, 8].map((i) => new Sprite('player/run/Run ($i).png')).toList();
-    var time = 30.0;
-    diffX = (moveTo.dx - (player.x)) / time;
-    diffY = (moveTo.dy - (player.y)) / time;
+    var speed = 5.0;
+    bool reverseX = moveTo.dx - player.x > 0;
+    bool reverseY = moveTo.dy - player.y > 0;
+    diffX = speed * (reverseX ? 1 : -1);
+    diffY = speed * (reverseY ? 1 : -1);
     run = true;
+    List<Sprite> sprites = [1, 2, 3, 4, 5, 6, 7, 8].map((i) => new Sprite((reverseX ? 'player/run/Run ($i).png' : 'player/run/Run ($i) Flip.png'))).toList();
     player.animation = Animation.spriteList(sprites, loop: true, stepTime: 0.2);
   }
 }
