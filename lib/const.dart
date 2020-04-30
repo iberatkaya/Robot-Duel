@@ -1,5 +1,3 @@
-
-
 import 'package:flutter/foundation.dart';
 
 const factor = kIsWeb ? 2.5 : 1.5;
