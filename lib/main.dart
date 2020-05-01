@@ -69,6 +69,7 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
 
   bool playing = true;
+  int difficulty = 1;
 
   @override
   Widget build(BuildContext context) {
@@ -105,12 +106,15 @@ class _AppState extends State<App> {
                 decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
                 child: DropdownButton<int>(
                   style: TextStyle(color: Colors.white),
-                  value: 1,
+                  value: difficulty,
                   items: [
                     for(int i=1; i<=10; i++) DropdownMenuItem(child: Text(i.toString(), style: TextStyle(color: Colors.black)), value: i,),
                   ], 
                   onChanged: (val){
                     widget.game.difficulty = val;
+                    setState(() {
+                      difficulty = val;
+                    });
                   }
                 ),
               )
