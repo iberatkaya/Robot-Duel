@@ -1,12 +1,9 @@
 import 'dart:ui';
-import 'package:flame/components/parallax_component.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flamerpg/const.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart' as Material;
-
 import 'components/player.dart';
 
 class FlameRPGGame extends Game {
@@ -22,7 +19,7 @@ class FlameRPGGame extends Game {
   void initialize() async {
     resize(await Flame.util.initialDimensions());
     img = await Flame.images.load(kIsWeb ? 'background (1).png' : 'background (2).png');
-    player = Player(this, Offset(screenSize.width * 0.5 - playerWidth / 2, screenSize.height * 0.78 - playerHeight/2));
+    player = Player(this, Offset(screenSize.width * 0.5 - playerWidth / 2, screenSize.height * 0.7 - playerHeight/2));
   }
 
   void resize(Size size) {
@@ -32,10 +29,8 @@ class FlameRPGGame extends Game {
   }
 
   void onTapUp(TapUpDetails d) {
-    if(d.globalPosition.dy <= screenSize.height * 0.13){
-      return;
-    }
     // handle taps here
+    print("click");
     player.onTapUp(d);
   }
 

@@ -23,14 +23,15 @@ void main() async {
   List<String> imgs = [];
   for(int i=1; i<=10; i++){
     imgs.add("player/idle/Idle ($i).png");
+    imgs.add("player/idle/Idle ($i) Flip.png");
   }
   for(int i=1; i<=8; i++){
     imgs.add("player/run/Run ($i).png");
     imgs.add("player/run/Run ($i) Flip.png");
   }
-  for(int i=1; i<=8; i++){
-    imgs.add("player/run/Run ($i).png");
-    imgs.add("player/run/Run ($i) Flip.png");
+  for(int i=1; i<=4; i++){
+    imgs.add("player/shoot/Shoot ($i).png");
+    imgs.add("player/shoot/Shoot ($i) Flip.png");
   }
   for(int i=1; i<=2; i++){
     imgs.add("background ($i).png");
@@ -66,36 +67,38 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Column(
+        body: Stack(
           children: <Widget>[
-            GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              child: Container(
-                color: Color.fromRGBO(0, 30, 50, 1),
-                height: MediaQuery.of(context).size.height * 0.12,
-                child: Row(
-                  children: <Widget>[
-                    IconButton(
-                      icon: Icon(playing ? Icons.music_note : Icons.close, size: 24, color: Colors.white70),
-                      onPressed: () {
-                        if(playing)
-                          Flame.bgm.pause();
-                        else
-                          Flame.bgm.resume();
-                        setState(() {
-                          playing = !playing;
-                        });
-                      },
-                    )
-                  ],
+             Positioned.fill(
+                child: GestureDetector(
+                  onTapUp: widget.game.onTapUp,
+                  child: widget.game.widget,
                 ),
+             ),
+            Positioned(
+              left: 12,
+              bottom: 12,
+              child: IconButton(
+                icon: Icon(playing ? Icons.music_note : Icons.close, size: 32, color: Colors.white70),
+                onPressed: () {
+                  if(playing)
+                    Flame.bgm.pause();
+                  else
+                    Flame.bgm.resume();
+                  setState(() {
+                    playing = !playing;
+                  });
+                },
               ),
             ),
-            ConstrainedBox(
-              constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width, maxHeight: MediaQuery.of(context).size.height * 0.88),
-              child: GestureDetector(
-                onTapUp: widget.game.onTapUp,
-                child: widget.game.widget,
+            Positioned(
+              right: 12,
+              bottom: 12,
+              child: IconButton(
+                icon: Icon(Icons.crop_square, size: 32, color: Colors.white),
+                onPressed: () {
+                  widget.game.player.attackAnim(widget.game.player.lastDirRight);
+                },
               ),
             ),
           ],

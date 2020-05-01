@@ -16,17 +16,33 @@ class Player {
   double diffY;
   bool run;
   bool setIdle;
+  bool lastDirRight;
+  bool attacking;
+  List<Sprite> idleSprites;
+  List<Sprite> idleRevSprites;
+  List<Sprite> attackSprites;
+  List<Sprite> attackRevSprites;
+  List<Sprite> runSprites;
+  List<Sprite> runRevSprites;
 
   Player(this.game, Offset center) {
-    List<Sprite> sprites = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => new Sprite('player/idle/Idle ($i).png')).toList();
-    player = AnimationComponent(playerWidth, playerHeight, Animation.spriteList(sprites, loop: true, stepTime: 0.1));
+    idleSprites = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => new Sprite('player/idle/Idle ($i).png')).toList();
+    player = AnimationComponent(playerWidth, playerHeight, Animation.spriteList(idleSprites, loop: true, stepTime: 0.1));
+    idleRevSprites = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => new Sprite('player/idle/Idle ($i) Flip.png')).toList();
+    runSprites = [1, 2, 3, 4, 5, 6, 7, 8].map((i) => new Sprite('player/run/Run ($i).png')).toList();
+    runRevSprites = [1, 2, 3, 4, 5, 6, 7, 8].map((i) => new Sprite('player/run/Run ($i) Flip.png')).toList();
+    attackSprites = [1, 2, 3, 4].map((i) => new Sprite('player/shoot/Shoot ($i).png')).toList();
+    attackRevSprites = [1, 2, 3, 4].map((i) => new Sprite('player/shoot/Shoot ($i) Flip.png')).toList();
+    player.setByPosition(Position.fromOffset(center));
+
     moveTo = center; 
     diffX = 0;
     diffY = 0;
     run = false;
     setIdle = false;
+    lastDirRight = true;
+    attacking = false;
   }
-
 
   void render(Canvas c) {
     player.render(c);
@@ -70,14 +86,36 @@ class Player {
     }
     else{
       if(setIdle){
-        List<Sprite> sprites = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => new Sprite('player/idle/Idle ($i).png')).toList();
-        player.animation = Animation.spriteList(sprites, loop: true, stepTime: 0.1);
+        idleAnim(lastDirRight);
         setIdle = false;
       }
       diffX = 0;
       diffY = 0;
     }
   }
+
+  void attackAnim(bool right){
+    if(attacking)
+      return;
+    attacking = true;
+    player.animation = Animation.spriteList(right ? attackSprites : attackRevSprites, loop: true, stepTime: 0.25);
+    run = false;
+    Future.delayed(Duration(seconds: 1), (){ 
+      if(!run)
+        idleAnim(lastDirRight);
+      attacking = false;
+    });
+  }
+
+  void idleAnim(bool right){
+    player.animation = Animation.spriteList(right ? idleSprites : idleRevSprites, loop: true, stepTime: 0.1);  
+  }
+
+  void runAnim(bool right){
+    player.animation = Animation.spriteList(right ? runSprites : runRevSprites, loop: true, stepTime: 0.1);
+    run = true;
+  }
+  
 
   void onTapUp(TapUpDetails d) {
     moveTo = Offset(d.globalPosition.dx - player.width / 2, d.globalPosition.dy - player.height);
@@ -88,9 +126,7 @@ class Player {
     diffY = speed * (reverseY ? 1 : -1);
     diffX = speed * ((moveTo.dx - player.x).abs() / ((moveTo.dx - player.x).abs() + (moveTo.dy - player.y).abs())) * (reverseX ? 1 : -1);
     diffY = speed * ((moveTo.dy - player.y).abs() / ((moveTo.dx - player.x).abs() + (moveTo.dy - player.y).abs())) * (reverseY ? 1 : -1);
-
-    run = true;
-    List<Sprite> sprites = [1, 2, 3, 4, 5, 6, 7, 8].map((i) => new Sprite((reverseX ? 'player/run/Run ($i).png' : 'player/run/Run ($i) Flip.png'))).toList();
-    player.animation = Animation.spriteList(sprites, loop: true, stepTime: 0.1);
+    lastDirRight = reverseX;
+    runAnim(lastDirRight);
   }
 }
