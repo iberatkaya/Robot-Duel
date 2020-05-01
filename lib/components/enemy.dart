@@ -12,6 +12,7 @@ class Enemy {
   final FlameRPGGame game;
   Animation playerAnimation;
   AnimationComponent player;
+  int difficulty;
   Offset moveTo;
   double diffX;
   double diffY;
@@ -26,7 +27,7 @@ class Enemy {
   List<Sprite> runSprites;
   List<Sprite> runRevSprites;
 
-  Enemy(this.game, Offset center) {
+  Enemy(this.game, this.difficulty, Offset center) {
     idleSprites = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => new Sprite('enemy/idle/Idle ($i).png')).toList();
     player = AnimationComponent(playerWidth, playerHeight, Animation.spriteList(idleSprites, loop: true, stepTime: 0.1));
     idleRevSprites = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((i) => new Sprite('enemy/idle/Idle ($i) Flip.png')).toList();
@@ -48,7 +49,7 @@ class Enemy {
     player.render(c);
   }
 
-  void update(double t) {
+  void update(double t, int clock) {
     player.update(t);
     if(run){
       double x = player.x, y = player.y;
@@ -63,8 +64,9 @@ class Enemy {
         diffY = 0;
       }
       if(diffX == 0 && diffY == 0){
-        run = false;
         setIdle = true;
+        run = false;
+        attackAnim(game.player.player.x - player.x >= 0);
       }
       if(x <= 0){
         x = 0;
@@ -85,10 +87,9 @@ class Enemy {
       player.setByPosition(Position(x, y));
     }
     else{
-      if(setIdle){
-        idleAnim(lastDirRight);
-        setIdle = false;
-      }
+      double clockAttackAnim = (60 - difficulty * 5 > 20) ? 60 - difficulty * 5 : 20;
+      if(clock % clockAttackAnim == 1 && !run)
+        attackAnim(game.player.player.x - player.x >= 0);
       diffX = 0;
       diffY = 0;
     }
@@ -98,12 +99,13 @@ class Enemy {
     if(attacking)
       return;
     attacking = true;
-    player.animation = Animation.spriteList(right ? attackSprites : attackRevSprites, loop: true, stepTime: 0.2);
+    double attackDuration = (800.0 - difficulty * 50 > 200) ? (800.0 - difficulty * 50) : 400;
+    player.animation = Animation.spriteList(right ? attackSprites : attackRevSprites, loop: true, stepTime: attackDuration/4);
     run = false;
-    Future.delayed(Duration(milliseconds: 400), (){ 
+    Future.delayed(Duration(milliseconds: (attackDuration~/2)), (){ 
       Bullet bullet = Bullet(game, lastDirRight, player.x + player.width * (lastDirRight ? 1.1 : -0.5), player.y + player.height * 0.35);
       game.enemybullets.add(bullet);
-      Future.delayed(Duration(milliseconds: 400), (){ 
+      Future.delayed(Duration(milliseconds: (attackDuration~/2)), (){ 
         if(!run){
           idleAnim(lastDirRight);
         }
@@ -117,13 +119,17 @@ class Enemy {
   }
 
   void runAnim(bool right){
+    if(run)
+      return;
     player.animation = Animation.spriteList(right ? runSprites : runRevSprites, loop: true, stepTime: 0.1);
     run = true;
   }
   
   void move(Offset move){
     moveTo = Offset(move.dx - player.width / 2, move.dy - player.height);
-    var speed = 4.0;
+
+    //Increase enemy speed with each difficulty
+    var speed = 4.0 + difficulty / 5;
     bool reverseX = moveTo.dx - player.x > 0;
     bool reverseY = moveTo.dy - player.y > 0;
     diffX = speed * (reverseX ? 1 : -1);

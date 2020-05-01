@@ -98,6 +98,24 @@ class _AppState extends State<App> {
               ),
             ),
             Positioned(
+              left: MediaQuery.of(context).size.width / 2,
+              bottom: 12,
+              child: Container(
+                padding: EdgeInsets.fromLTRB(16, 0, 4, 0),
+                decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(12)),
+                child: DropdownButton<int>(
+                  style: TextStyle(color: Colors.white),
+                  value: 1,
+                  items: [
+                    for(int i=1; i<=10; i++) DropdownMenuItem(child: Text(i.toString(), style: TextStyle(color: Colors.black)), value: i,),
+                  ], 
+                  onChanged: (val){
+                    widget.game.difficulty = val;
+                  }
+                ),
+              )
+            ),
+            Positioned(
               right: 12,
               bottom: 12,
               child: IconButton(

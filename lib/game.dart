@@ -14,6 +14,7 @@ class FlameRPGGame extends BaseGame {
   double tileSize;
   Player player;
   Image img;
+  int difficulty;
   List<Bullet> bullets;
   List<Bullet> enemybullets;
   List<Enemy> enemies;
@@ -28,10 +29,11 @@ class FlameRPGGame extends BaseGame {
     img = await Flame.images.load(kIsWeb ? 'background (1).png' : 'background (2).png');
     player = Player(this, Offset(screenSize.width * 0.5 - playerWidth / 2, screenSize.height * 0.7 - playerHeight/2));
     bullets = [];
+    difficulty = 1;
     enemybullets = [];
     //Keep at a fixed x
     leftEnemySpanX = 20 + screenSize.width * 0.05;
-    enemies = [Enemy(this, Offset(leftEnemySpanX, screenSize.height * 0.7 - playerHeight/2 - 60))];
+    enemies = [Enemy(this, difficulty, Offset(leftEnemySpanX, screenSize.height * 0.7 - playerHeight/2 - 60))];
     clock = 0;
   }
 
@@ -85,13 +87,14 @@ class FlameRPGGame extends BaseGame {
       element.update(t);
     });
     enemies.forEach((element) {
-      element.update(t);
+      element.update(t, clock);
+
+      //Delete later
+      element.difficulty = difficulty;
       //If not close, move
-      if(!element.run && (player.moveTo.dy.toInt()-element.player.y.toInt()).abs() > 10 && !element.attacking){
+      if((player.moveTo.dy.toInt()-element.player.y.toInt()).abs() > 10 && !element.attacking){
         element.move(Offset(leftEnemySpanX, player.player.y + player.player.height));
       }
-      else if(clock % 50 == 1 && !element.run)
-        element.attackAnim(player.player.x - element.player.x >= 0);
     });
     bullets.removeWhere((element) => (element.bullet.x < 0 || element.bullet.x > screenSize.width));
   }
