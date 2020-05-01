@@ -21193,17 +21193,19 @@ $1:function(a){return O.k4("player/shoot/Shoot ("+H.c(a)+").png")}}
 Q.Gt.prototype={
 $1:function(a){return O.k4("player/shoot/Shoot ("+H.c(a)+") Flip.png")}}
 Q.Gn.prototype={
-$0:function(){var t,s=this.a,r=s.a,q=s.y,p=s.c,o=p.a,n=p.d,m=q?1.15:-0.9,l=p.b
-p=p.e
-t=new G.qB(r,q)
-q=new G.vw(O.k4("beam.png"))
-q.d=28
-q.e=8
-t.b=q
-q.a=o+n*m
-q.b=l+p*0.32
-r.fr.push(t)
-P.P2(P.cn(0,400),new Q.Gm(s),u.P)},
+$0:function(){var t,s,r=this.a,q=r.a,p=r.y,o=r.c,n=o.a,m=q.cy
+m=p?25+m.a*0.05:-1*(25+m.a*0.02)
+t=o.b
+o=o.e
+s=new G.qB(q,p)
+p=new G.vw(O.k4("beam.png"))
+p.d=28
+p.e=8
+s.b=p
+p.a=n+m
+p.b=t+o*0.35
+q.fr.push(s)
+P.P2(P.cn(0,400),new Q.Gm(r),u.P)},
 $S:0}
 Q.Gm.prototype={
 $0:function(){var t=this.a
@@ -21307,9 +21309,11 @@ t.sab(0,new P.J(4294901760))
 a.b.eN(s)
 s.b9(0)}}
 D.D8.prototype={
-$1:function(a){var t=a.b,s=t.a
-if(!(s<0))a.a.cy.a
-t.a=a.c?1+s:-1+s}}
+$1:function(a){var t,s,r=a.b,q=r.a
+if(!(q<0))a.a.cy.a
+t=a.a.cy.a
+s=a.c?1:-1
+r.a=q+t*0.005*s}}
 D.D9.prototype={
 $1:function(a){var t=a.b.a
 return t<0||t>this.a.cy.a}}

@@ -26,6 +26,6 @@ class Bullet {
     if(bullet.x < 0 || game.screenSize.width < bullet.x){
       bullet.destroy();
     }
-    bullet.setByPosition(Position(dirRight ? 1 + bullet.x : -1 + bullet.x, bullet.y));
+    bullet.setByPosition(Position(bullet.x + game.screenSize.width * 0.005 * (dirRight ? 1 : -1), bullet.y));
   }
 }
