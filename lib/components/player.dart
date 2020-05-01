@@ -3,6 +3,7 @@ import 'package:flame/animation.dart';
 import 'package:flame/components/animation_component.dart';
 import 'package:flame/position.dart';
 import 'package:flame/sprite.dart';
+import 'package:flamerpg/components/bullets.dart';
 import 'package:flamerpg/const.dart';
 import 'package:flamerpg/game.dart';
 import 'package:flutter/gestures.dart';
@@ -98,12 +99,17 @@ class Player {
     if(attacking)
       return;
     attacking = true;
-    player.animation = Animation.spriteList(right ? attackSprites : attackRevSprites, loop: true, stepTime: 0.25);
+    player.animation = Animation.spriteList(right ? attackSprites : attackRevSprites, loop: true, stepTime: 0.2);
     run = false;
-    Future.delayed(Duration(seconds: 1), (){ 
-      if(!run)
-        idleAnim(lastDirRight);
-      attacking = false;
+    Future.delayed(Duration(milliseconds: 400), (){ 
+      Bullet bullet = Bullet(game, lastDirRight, player.x + (lastDirRight ? 25 + game.screenSize.width * 0.05 : -1 * (25 + game.screenSize.width * 0.02)), player.y + player.height * 0.35);
+      game.bullets.add(bullet);
+      Future.delayed(Duration(milliseconds: 400), (){ 
+        if(!run){
+          idleAnim(lastDirRight);
+        }
+        attacking = false;  
+      });
     });
   }
 
@@ -118,7 +124,7 @@ class Player {
   
 
   void onTapUp(TapUpDetails d) {
-    moveTo = Offset(d.globalPosition.dx - player.width / 2, d.globalPosition.dy - player.height);
+    moveTo = Offset(d.localPosition.dx - player.width / 2, d.localPosition.dy - player.height);
     var speed = 5.0;
     bool reverseX = moveTo.dx - player.x > 0;
     bool reverseY = moveTo.dy - player.y > 0;
