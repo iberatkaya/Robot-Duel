@@ -52,9 +52,13 @@ flutter:
     - assets/audio/
     - assets/images/
     - assets/images/player/
+    - assets/images/enemy/
     - assets/images/player/idle/
+    - assets/images/enemy/idle/
     - assets/images/player/run/
+    - assets/images/enemy/run/
     - assets/images/player/shoot/
+    - assets/images/enemy/shoot/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.

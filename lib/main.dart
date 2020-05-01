@@ -18,20 +18,26 @@ void main() async {
   var tapper = TapGestureRecognizer();
   tapper.onTapUp = game.onTapUp;
   flameUtil.addGestureRecognizer(tapper);
-  Flame.audio.load('music.mp3');
-  Flame.bgm.play('music.mp3');
+//  Flame.audio.load('music.mp3');
+//  Flame.bgm.play('music.mp3');
   List<String> imgs = [];
   for(int i=1; i<=10; i++){
     imgs.add("player/idle/Idle ($i).png");
     imgs.add("player/idle/Idle ($i) Flip.png");
+    imgs.add("enemy/idle/Idle ($i).png");
+    imgs.add("enemy/idle/Idle ($i) Flip.png");
   }
   for(int i=1; i<=8; i++){
     imgs.add("player/run/Run ($i).png");
     imgs.add("player/run/Run ($i) Flip.png");
+    imgs.add("enemy/run/Run ($i).png");
+    imgs.add("enemy/run/Run ($i) Flip.png");
   }
   for(int i=1; i<=4; i++){
     imgs.add("player/shoot/Shoot ($i).png");
     imgs.add("player/shoot/Shoot ($i) Flip.png");
+    imgs.add("enemy/shoot/Shoot ($i).png");
+    imgs.add("enemy/shoot/Shoot ($i) Flip.png");
   }
   for(int i=1; i<=2; i++){
     imgs.add("background ($i).png");

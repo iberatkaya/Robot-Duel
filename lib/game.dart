@@ -2,17 +2,22 @@ import 'dart:ui';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
 import 'package:flamerpg/components/bullets.dart';
+import 'package:flamerpg/components/enemy.dart';
 import 'package:flamerpg/const.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'components/player.dart';
 
 class FlameRPGGame extends BaseGame {
+  double leftEnemySpanX;
   Size screenSize;
   double tileSize;
   Player player;
   Image img;
   List<Bullet> bullets;
+  List<Bullet> enemybullets;
+  List<Enemy> enemies;
+  int clock;
 
   FlameRPGGame(){
     initialize();
@@ -23,6 +28,11 @@ class FlameRPGGame extends BaseGame {
     img = await Flame.images.load(kIsWeb ? 'background (1).png' : 'background (2).png');
     player = Player(this, Offset(screenSize.width * 0.5 - playerWidth / 2, screenSize.height * 0.7 - playerHeight/2));
     bullets = [];
+    enemybullets = [];
+    //Keep at a fixed x
+    leftEnemySpanX = 20 + screenSize.width * 0.05;
+    enemies = [Enemy(this, Offset(leftEnemySpanX, screenSize.height * 0.7 - playerHeight/2 - 60))];
+    clock = 0;
   }
 
   void resize(Size size) {
@@ -49,15 +59,39 @@ class FlameRPGGame extends BaseGame {
       element.render(canvas);
       canvas.restore();
     });
+    enemybullets.forEach((element) {
+      canvas.save();
+      element.render(canvas);
+      canvas.restore();
+    });
+    enemies.forEach((element) {
+      canvas.save();
+      element.render(canvas);
+      canvas.restore();
+    });
     canvas.save();
     player.render(canvas);
     canvas.restore();
   }
 
+
   void update(double t) {
+    clock += 1;
     player.update(t);
     bullets.forEach((element) {
       element.update(t);
+    });
+    enemybullets.forEach((element) {
+      element.update(t);
+    });
+    enemies.forEach((element) {
+      element.update(t);
+      //If not close, move
+      if(!element.run && (player.moveTo.dy.toInt()-element.player.y.toInt()).abs() > 10 && !element.attacking){
+        element.move(Offset(leftEnemySpanX, player.player.y + player.player.height));
+      }
+      else if(clock % 50 == 1 && !element.run)
+        element.attackAnim(player.player.x - element.player.x >= 0);
     });
     bullets.removeWhere((element) => (element.bullet.x < 0 || element.bullet.x > screenSize.width));
   }

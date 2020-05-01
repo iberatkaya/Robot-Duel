@@ -102,7 +102,7 @@ class Player {
     player.animation = Animation.spriteList(right ? attackSprites : attackRevSprites, loop: true, stepTime: 0.2);
     run = false;
     Future.delayed(Duration(milliseconds: 400), (){ 
-      Bullet bullet = Bullet(game, lastDirRight, player.x + player.width * (lastDirRight ? 0.9 : -0.5), player.y + player.height * 0.35);
+      Bullet bullet = Bullet(game, lastDirRight, player.x + player.width * (lastDirRight ? 1.1 : -0.5), player.y + player.height * 0.35);
       game.bullets.add(bullet);
       Future.delayed(Duration(milliseconds: 400), (){ 
         if(!run){
