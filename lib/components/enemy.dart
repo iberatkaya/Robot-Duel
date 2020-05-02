@@ -87,7 +87,7 @@ class Enemy {
       player.setByPosition(Position(x, y));
     }
     else{
-      double clockAttackAnim = (60 - difficulty * 5 > 20) ? 60 - difficulty * 5 : 20;
+      int clockAttackAnim = (60 - difficulty * 5 > 20) ? 60 - difficulty * 5 : 20;
       if(clock % clockAttackAnim == 1 && !run)
         attackAnim(game.player.player.x - player.x >= 0);
       diffX = 0;
