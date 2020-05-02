@@ -109,12 +109,15 @@ class FlameRPGGame extends BaseGame {
     enemybullets.forEach((element) {
       element.update(t);
       if(collision(element.bullet, player.player)){
-        if(!player.dead){
+        int deadEnemies = 0;
+        enemies.forEach((element) => deadEnemies++);
+        if(!player.dead && deadEnemies != enemies.length){
           player.dead = true;
           player.deadAnim(player.lastDirRight);
         }
         enemies.forEach((i) { 
-          i.idleAnim(i.lastDirRight);
+          if(!i.dead)
+            i.idleAnim(i.lastDirRight);
         });
       }
     });
