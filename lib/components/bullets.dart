@@ -5,6 +5,7 @@ import 'package:flame/position.dart';
 import 'package:flame/sprite.dart';
 import 'package:flamerpg/game.dart';
 import 'package:flamerpg/components/player.dart';
+import 'package:flutter/foundation.dart';
 
 class Bullet {
   FlameRPGGame game;
@@ -27,6 +28,7 @@ class Bullet {
     if(bullet.x < 0 || game.screenSize.width < bullet.x){
       bullet.destroy();
     }
-    bullet.setByPosition(Position(bullet.x + game.screenSize.width * 0.006 * (dirRight ? 1 : -1), bullet.y));
+    //Speed up bullets for web
+    bullet.setByPosition(Position(bullet.x + game.screenSize.width * (kIsWeb ? 0.01 : 0.006) * (dirRight ? 1 : -1), bullet.y));
   }
 }

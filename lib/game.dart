@@ -22,14 +22,13 @@ class FlameRPGGame extends BaseGame {
   double tileSize;
   Player player;
   Image img;
-  int difficulty;
   List<Bullet> bullets;
   List<Bullet> enemybullets;
   List<Enemy> enemies;
   int clock;
   bool won;
 
-  FlameRPGGame(this.screenSize, this.difficulty, this.store){
+  FlameRPGGame(this.screenSize, this.store){
     initialize();
   }
 
@@ -39,12 +38,11 @@ class FlameRPGGame extends BaseGame {
     
     //Centering with screenSize on Android causes bug where player is rendered offscreen.
     //Probably caused by the screen rotation.
-    player = Player(this, Offset(screenSize.width * 0.5, screenSize.height * 0.3));
+    player = Player(this, Offset(screenSize.width * 0.5, screenSize.height * 0.5));
     bullets = [];
     enemybullets = [];
     //Keep at a fixed x
-    leftEnemySpanX = 20 + screenSize.width * 0.05;
-    enemies = [Enemy(this, difficulty, Offset(screenSize.height * 0.2, leftEnemySpanX))];
+    enemies = (store.state.level > 14) ? [Enemy(this, Offset(screenSize.width * 0.05, screenSize.height * 0.15)), Enemy(this, Offset(screenSize.width * 0.95 - player.player.width, screenSize.height * 0.25))] : [Enemy(this, Offset(screenSize.width * 0.05, screenSize.height * 0.15))];
     clock = 0;
   }
 
@@ -102,20 +100,14 @@ class FlameRPGGame extends BaseGame {
     player.update(t);
     bullets.forEach((element) {
       element.update(t);
-      int deadEnemies = 0;
       enemies.forEach((enemy) { 
         if(collision(element.bullet, enemy.player)){
           if(!enemy.dead && !player.dead){
             enemy.dead = true;
             enemy.deadAnim(enemy.lastDirRight);
           }
-          else if(enemy.dead)
-            deadEnemies++;
         }
       });
-      if(deadEnemies == enemies.length){
-        store.dispatch(SetWinAction(WinState.Won));
-      }
     });
     enemybullets.forEach((element) {
       element.update(t);
@@ -133,16 +125,20 @@ class FlameRPGGame extends BaseGame {
         });
       }
     });
+    int deadctr = 0;
     enemies.forEach((element) {
       element.update(t, clock);
-
-      //Delete later
-      element.difficulty = difficulty;
+      if(element.dead)
+        deadctr++;
+        
       //If not close, move
-      if((player.moveTo.dy.toInt()-element.player.y.toInt()).abs() > 10 && !element.attacking && !player.dead && !element.dead){
-        element.move(Offset(leftEnemySpanX, player.player.y + player.player.height));
+      if((player.moveTo.dy.toInt()-element.player.y.toInt()).abs() > 10 && !player.dead && !element.attacking && !element.dead){
+        element.move(Offset(element.player.x + element.player.width / 2, player.player.y + player.player.height));
       }
     });
+    if(deadctr == enemies.length){
+      store.dispatch(SetWinAction(WinState.Won));
+    }
     bullets.removeWhere((element) => (element.bullet.x < 0 || element.bullet.x > screenSize.width));
     enemybullets.removeWhere((element) => (element.bullet.x < 0 || element.bullet.x > screenSize.width));
   }

@@ -4,6 +4,7 @@ import 'package:flamerpg/redux/actions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'components/enemy.dart';
 import 'const.dart';
 import 'game.dart';
 import 'package:flutter/gestures.dart';
@@ -29,9 +30,8 @@ void main() async {
   int level = (prefs.getInt('level') ?? 1);
   bool audioOn = (prefs.getBool('audio') ?? true);
   store.dispatch(SetLevelAction(level));
-  int difficulty = (level ~/ 3) + 1;
 
-  FlameRPGGame game = FlameRPGGame(size, difficulty, store);
+  FlameRPGGame game = FlameRPGGame(size, store);
   var tapper = TapGestureRecognizer();
   tapper.onTapUp = game.onTapUp;
   flameUtil.addGestureRecognizer(tapper);
@@ -145,7 +145,7 @@ class _AppState extends State<App> {
                  alignment: Alignment.center,
                  child: FlatButton(
                   onPressed: (){
-                    widget.game = FlameRPGGame(widget.game.size, (store.state.level ~/ 3) + 1, widget.game.store);
+                    widget.game = FlameRPGGame(widget.game.size, widget.game.store);
                     store.dispatch(SetWinAction(WinState.Playing));
                     setState(() {
                       startGame = true;
@@ -221,10 +221,10 @@ class _AppState extends State<App> {
               ),
             ),
             Positioned(
-              left: 12,
-              bottom: 12,
+              left: 8,
+              bottom: 8,
               child: IconButton(
-                icon: Icon(widget.audioOn ? Icons.music_note : Icons.close, size: 32, color: Colors.white70),
+                icon: Icon(widget.audioOn ? Icons.music_note : Icons.close, size: 28, color: Colors.white70),
                 onPressed: () {
                   if(widget.audioOn)
                     Flame.bgm.pause();
@@ -243,7 +243,7 @@ class _AppState extends State<App> {
                 child: StoreConnector<AppState, int>(
                   converter: (store) => store.state.level,
                   builder: (context, level) {
-                    return Text("Level: $level", style: TextStyle(color: Colors.white, fontSize: 24));    
+                    return Text("Level: $level", style: TextStyle(color: Colors.white, fontSize: 16));    
                   }
                 ),
               ) 
@@ -268,16 +268,23 @@ class _AppState extends State<App> {
                     SharedPreferences prefs = await SharedPreferences.getInstance();
                     var level = store.state.level + 1;
                     await prefs.setInt('level', level);
-                    widget.game.difficulty = (level ~/ 3) + 1;
                     store.dispatch(IncLevelAction());
                   }
-                  Future.delayed(Duration(seconds: 7), (){
+                  Future.delayed(Duration(seconds: 4), (){
                     store.dispatch(SetWinAction(WinState.Playing));
+                    widget.game.enemybullets = [];
+                    widget.game.bullets = [];
                     widget.game.player.dead = false;
+                    widget.game.player.player.x = widget.game.screenSize.width * 0.5;
+                    widget.game.player.player.y = widget.game.screenSize.height * 0.4;
                     widget.game.player.player.width = playerWidth;
                     widget.game.player.idleAnim(widget.game.player.lastDirRight);
+                    if(store.state.level == 15 && widget.game.enemies.length != 2){
+                      widget.game.enemies.add(Enemy(widget.game, Offset(widget.game.screenSize.width * 0.95 - widget.game.player.player.width, widget.game.screenSize.height * 0.25)));
+                    }
                     widget.game.enemies.forEach((element) {
                       element.dead = false;
+                      element.player.y = widget.game.screenSize.height * 0.2;
                       element.player.width = playerWidth;
                       element.idleAnim(element.lastDirRight);
                     });
