@@ -10,9 +10,10 @@ class Bullet {
   FlameRPGGame game;
   SpriteComponent bullet;
   bool dirRight;
+  bool enemyBullet;
 
-  Bullet(this.game, this.dirRight, double x, double y){
-    bullet = SpriteComponent.rectangle(28, 8, "beam.png");
+  Bullet(this.game, this.dirRight, this.enemyBullet, double x, double y){
+    bullet = SpriteComponent.rectangle(28, 8, enemyBullet ? "beamred.png" : "beam.png");
     bullet.setByPosition(Position(x, y));
   }
 

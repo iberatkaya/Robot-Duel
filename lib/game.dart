@@ -1,6 +1,9 @@
 import 'dart:ui';
+import 'package:flame/components/animation_component.dart';
+import 'package:flame/components/component.dart';
 import 'package:flame/flame.dart';
 import 'package:flame/game.dart';
+import 'package:flame/sprite.dart';
 import 'package:flamerpg/components/bullets.dart';
 import 'package:flamerpg/components/enemy.dart';
 import 'package:flamerpg/const.dart';
@@ -30,15 +33,13 @@ class FlameRPGGame extends BaseGame {
     
     //Centering with screenSize on Android causes bug where player is rendered offscreen.
     //Probably caused by the screen rotation.
-    player = Player(this, Offset(screenSize.height * 0.6 - playerHeight/2, screenSize.width * 0.5 - playerWidth / 2));
-    print(player.player.x);
-    print(player.player.y);
+    player = Player(this, Offset(screenSize.width * 0.5, screenSize.height * 0.3));
     bullets = [];
     difficulty = 1;
     enemybullets = [];
     //Keep at a fixed x
     leftEnemySpanX = 20 + screenSize.width * 0.05;
-    enemies = [Enemy(this, difficulty, Offset(screenSize.height * 0.2 - playerHeight/2 - 60, leftEnemySpanX))];
+    enemies = [Enemy(this, difficulty, Offset(screenSize.height * 0.2, leftEnemySpanX))];
     clock = 0;
   }
 
@@ -81,15 +82,41 @@ class FlameRPGGame extends BaseGame {
     canvas.restore();
   }
 
+  bool collision(SpriteComponent a1, AnimationComponent a2){
+    return (
+      a1.x < a2.x + a2.width &&
+      a1.x + a1.width > a2.x &&
+      a1.y < a2.y +  a2.height &&
+      a1.y + a1.height > a2.y
+    );
+  }
+
 
   void update(double t) {
     clock += 1;
     player.update(t);
     bullets.forEach((element) {
       element.update(t);
+        enemies.forEach((enemy) { 
+          if(collision(element.bullet, enemy.player)){
+            if(!enemy.dead && !player.dead){
+              enemy.dead = true;
+              enemy.deadAnim(enemy.lastDirRight);
+            }
+          }
+      });
     });
     enemybullets.forEach((element) {
       element.update(t);
+      if(collision(element.bullet, player.player)){
+        if(!player.dead){
+          player.dead = true;
+          player.deadAnim(player.lastDirRight);
+        }
+        enemies.forEach((i) { 
+          i.idleAnim(i.lastDirRight);
+        });
+      }
     });
     enemies.forEach((element) {
       element.update(t, clock);
@@ -97,10 +124,11 @@ class FlameRPGGame extends BaseGame {
       //Delete later
       element.difficulty = difficulty;
       //If not close, move
-      if((player.moveTo.dy.toInt()-element.player.y.toInt()).abs() > 10 && !element.attacking){
+      if((player.moveTo.dy.toInt()-element.player.y.toInt()).abs() > 10 && !element.attacking && !player.dead && !element.dead){
         element.move(Offset(leftEnemySpanX, player.player.y + player.player.height));
       }
     });
     bullets.removeWhere((element) => (element.bullet.x < 0 || element.bullet.x > screenSize.width));
+    enemybullets.removeWhere((element) => (element.bullet.x < 0 || element.bullet.x > screenSize.width));
   }
 }

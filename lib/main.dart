@@ -3,6 +3,7 @@ import 'package:flame/util.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'const.dart';
 import 'game.dart';
 import 'package:flutter/gestures.dart';
 
@@ -28,6 +29,12 @@ void main() async {
     imgs.add("enemy/idle/Idle ($i).png");
     imgs.add("enemy/idle/Idle ($i) Flip.png");
   }
+  for(int i=1; i<=10; i++){
+    imgs.add("player/dead/Dead ($i).png");
+    imgs.add("player/dead/Dead ($i) Flip.png");
+    imgs.add("enemy/dead/Dead ($i).png");
+    imgs.add("enemy/dead/Dead ($i) Flip.png");
+  }
   for(int i=1; i<=8; i++){
     imgs.add("player/run/Run ($i).png");
     imgs.add("player/run/Run ($i) Flip.png");
@@ -43,6 +50,8 @@ void main() async {
   for(int i=1; i<=2; i++){
     imgs.add("background ($i).png");
   }
+  imgs.add("beam.png");
+  imgs.add("beamred.png");
   await Flame.images.loadAll(imgs);
 
   runApp(
@@ -61,7 +70,7 @@ void main() async {
 class App extends StatefulWidget {
   App(this.game);
 
-  final FlameRPGGame game;
+  FlameRPGGame game;
 
   @override
   _AppState createState() => _AppState();
@@ -100,7 +109,7 @@ class _AppState extends State<App> {
               ),
             ),
             Positioned(
-              left: MediaQuery.of(context).size.width / 2,
+              left: MediaQuery.of(context).size.width / 3,
               bottom: 12,
               child: Container(
                 padding: EdgeInsets.fromLTRB(16, 0, 4, 0),
@@ -121,12 +130,30 @@ class _AppState extends State<App> {
               )
             ),
             Positioned(
+              left: 2 * MediaQuery.of(context).size.width / 3,
+              bottom: 12,
+              child: IconButton(
+                icon: Icon(Icons.refresh, size: 32, color: Colors.white,),
+                onPressed: (){
+                  widget.game.player.dead = false;
+                  widget.game.player.player.width = playerWidth;
+                  widget.game.player.idleAnim(widget.game.player.lastDirRight);
+                  widget.game.enemies.forEach((element) {
+                    element.dead = false;
+                    element.player.width = playerWidth;
+                    element.idleAnim(element.lastDirRight);
+                  });
+                },
+              )
+            ),
+            Positioned(
               right: 12,
               bottom: 12,
               child: IconButton(
                 icon: Icon(Icons.crop_square, size: 32, color: Colors.white),
                 onPressed: () {
-                  widget.game.player.attackAnim(widget.game.player.lastDirRight);
+                  if(!widget.game.player.dead)
+                    widget.game.player.attackAnim(widget.game.player.lastDirRight);
                 },
               ),
             ),
