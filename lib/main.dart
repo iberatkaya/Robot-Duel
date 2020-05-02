@@ -37,9 +37,9 @@ void main() async {
   flameUtil.addGestureRecognizer(tapper);
 
   //Load audio
-  Flame.bgm.initialize();
-  Flame.audio.load('music.mp3');
-  Flame.bgm.play('music.mp3');
+//  Flame.bgm.initialize();
+  //Flame.audio.load('music.mp3');
+  //Flame.bgm.play('music.mp3');
 
   //Load images
   List<String> imgs = [];
@@ -101,6 +101,7 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
 
   bool startGame = false;
+  FocusNode myFocusNode = FocusNode();
 
   @override
   Widget build(BuildContext context) {
@@ -161,18 +162,51 @@ class _AppState extends State<App> {
         ),
       );
     }
-
     return StoreProvider(
       store: widget.store,
       child:  Scaffold(
         body: Stack(
           children: <Widget>[
-            Positioned.fill(
-              child: GestureDetector(
-                onTapUp: widget.game.onTapUp,
-                child: widget.game.widget,
+            if(kIsWeb)
+              Positioned.fill(
+                child: RawKeyboardListener(
+                  focusNode: myFocusNode,
+                  autofocus: true,
+                  onKey: (key){
+                    if(widget.game.player.dead || widget.game.player.run)
+                      return;
+                    double speed = MediaQuery.of(context).size.height * 0.05;
+                    if(key.physicalKey == PhysicalKeyboardKey.arrowUp){
+                      widget.game.onTapUp(TapUpDetails(globalPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2, widget.game.player.player.y + widget.game.player.player.height - speed), localPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2, widget.game.player.player.y + widget.game.player.player.height - speed)));
+                    }
+                    else if(key.physicalKey == PhysicalKeyboardKey.arrowLeft){
+                      widget.game.onTapUp(TapUpDetails(globalPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2 - speed, widget.game.player.player.y + widget.game.player.player.height), localPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2 - speed, widget.game.player.player.y + widget.game.player.player.height)));                  
+                    }
+                    else if(key.physicalKey == PhysicalKeyboardKey.arrowRight){
+                      widget.game.onTapUp(TapUpDetails(globalPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2 + speed, widget.game.player.player.y + widget.game.player.player.height), localPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2 + speed, widget.game.player.player.y + widget.game.player.player.height)));                  
+
+                    }
+                    else if(key.physicalKey == PhysicalKeyboardKey.arrowDown){
+                      widget.game.onTapUp(TapUpDetails(globalPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2, widget.game.player.player.y + widget.game.player.player.height + speed), localPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2, widget.game.player.player.y + widget.game.player.player.height + speed)));                  
+
+                    }
+                    else if(key.physicalKey == PhysicalKeyboardKey.keyA || key.physicalKey == PhysicalKeyboardKey.space){
+                      widget.game.player.attackAnim(widget.game.player.lastDirRight);
+                    }
+                  },
+                  child: GestureDetector(
+                    onTapUp: widget.game.onTapUp,
+                    child: widget.game.widget,
+                  ),
+                ),
               ),
-            ),
+            if(!kIsWeb)
+              Positioned.fill(
+                child: GestureDetector(
+                    onTapUp: widget.game.onTapUp,
+                    child: widget.game.widget,
+                  ),
+                ),
             Positioned(
               left: 12,
               top: 12,

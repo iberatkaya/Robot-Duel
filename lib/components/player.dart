@@ -143,6 +143,7 @@ class Player {
       return;
     moveTo = Offset(d.localPosition.dx - player.width / 2, d.localPosition.dy - player.height);
     var speed = 5.0;
+    print(moveTo);
     bool reverseX = moveTo.dx - player.x > 0;
     bool reverseY = moveTo.dy - player.y > 0;
     diffX = speed * (reverseX ? 1 : -1);
