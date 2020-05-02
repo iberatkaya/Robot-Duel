@@ -13,7 +13,8 @@ void main() async {
     await flameUtil.fullScreen();
     await flameUtil.setOrientation(DeviceOrientation.landscapeLeft);
   }
-  FlameRPGGame game = FlameRPGGame();
+  var size = await Flame.util.initialDimensions();
+  FlameRPGGame game = FlameRPGGame(size);
   Flame.bgm.initialize();
   var tapper = TapGestureRecognizer();
   tapper.onTapUp = game.onTapUp;

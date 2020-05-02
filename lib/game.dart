@@ -20,20 +20,25 @@ class FlameRPGGame extends BaseGame {
   List<Enemy> enemies;
   int clock;
 
-  FlameRPGGame(){
+  FlameRPGGame(this.screenSize){
     initialize();
   }
 
   void initialize() async {
-    resize(await Flame.util.initialDimensions());
+    resize(screenSize);
     img = await Flame.images.load(kIsWeb ? 'background (1).png' : 'background (2).png');
-    player = Player(this, Offset(screenSize.width * 0.5 - playerWidth / 2, screenSize.height * 0.7 - playerHeight/2));
+    
+    //Centering with screenSize on Android causes bug where player is rendered offscreen.
+    //Probably caused by the screen rotation.
+    player = Player(this, Offset(screenSize.height * 0.6 - playerHeight/2, screenSize.width * 0.5 - playerWidth / 2));
+    print(player.player.x);
+    print(player.player.y);
     bullets = [];
     difficulty = 1;
     enemybullets = [];
     //Keep at a fixed x
     leftEnemySpanX = 20 + screenSize.width * 0.05;
-    enemies = [Enemy(this, difficulty, Offset(leftEnemySpanX, screenSize.height * 0.7 - playerHeight/2 - 60))];
+    enemies = [Enemy(this, difficulty, Offset(screenSize.height * 0.2 - playerHeight/2 - 60, leftEnemySpanX))];
     clock = 0;
   }
 
