@@ -7,11 +7,16 @@ import 'package:flame/sprite.dart';
 import 'package:flamerpg/components/bullets.dart';
 import 'package:flamerpg/components/enemy.dart';
 import 'package:flamerpg/const.dart';
+import 'package:flamerpg/redux/actions.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:redux/redux.dart';
 import 'components/player.dart';
+import "./main.dart";
+import 'redux/store.dart';
 
 class FlameRPGGame extends BaseGame {
+  Store<AppState> store;
   double leftEnemySpanX;
   Size screenSize;
   double tileSize;
@@ -22,8 +27,9 @@ class FlameRPGGame extends BaseGame {
   List<Bullet> enemybullets;
   List<Enemy> enemies;
   int clock;
+  bool won;
 
-  FlameRPGGame(this.screenSize){
+  FlameRPGGame(this.screenSize, this.difficulty, this.store){
     initialize();
   }
 
@@ -35,7 +41,6 @@ class FlameRPGGame extends BaseGame {
     //Probably caused by the screen rotation.
     player = Player(this, Offset(screenSize.width * 0.5, screenSize.height * 0.3));
     bullets = [];
-    difficulty = 1;
     enemybullets = [];
     //Keep at a fixed x
     leftEnemySpanX = 20 + screenSize.width * 0.05;
@@ -97,23 +102,30 @@ class FlameRPGGame extends BaseGame {
     player.update(t);
     bullets.forEach((element) {
       element.update(t);
-        enemies.forEach((enemy) { 
-          if(collision(element.bullet, enemy.player)){
-            if(!enemy.dead && !player.dead){
-              enemy.dead = true;
-              enemy.deadAnim(enemy.lastDirRight);
-            }
+      int deadEnemies = 0;
+      enemies.forEach((enemy) { 
+        if(collision(element.bullet, enemy.player)){
+          if(!enemy.dead && !player.dead){
+            enemy.dead = true;
+            enemy.deadAnim(enemy.lastDirRight);
           }
+          else if(enemy.dead)
+            deadEnemies++;
+        }
       });
+      if(deadEnemies == enemies.length){
+        store.dispatch(SetWinAction(WinState.Won));
+      }
     });
     enemybullets.forEach((element) {
       element.update(t);
       if(collision(element.bullet, player.player)){
         int deadEnemies = 0;
-        enemies.forEach((element) => deadEnemies++);
+        enemies.forEach((element) => (element.dead) ? deadEnemies++ : null);
         if(!player.dead && deadEnemies != enemies.length){
           player.dead = true;
           player.deadAnim(player.lastDirRight);
+          store.dispatch(SetWinAction(WinState.Lost));
         }
         enemies.forEach((i) { 
           if(!i.dead)
