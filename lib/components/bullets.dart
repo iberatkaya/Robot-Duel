@@ -29,6 +29,6 @@ class Bullet {
       bullet.destroy();
     }
     //Speed up bullets for web
-    bullet.setByPosition(Position(bullet.x + game.screenSize.width * (kIsWeb ? 0.01 : 0.006) * (dirRight ? 1 : -1), bullet.y));
+    bullet.setByPosition(Position(bullet.x + game.screenSize.width * (kIsWeb ? 0.015 : 0.009) * (dirRight ? 1 : -1), bullet.y));
   }
 }

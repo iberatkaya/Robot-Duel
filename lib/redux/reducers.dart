@@ -16,5 +16,25 @@ AppState reducer(AppState state, action){
       state.win = setWin(state.win, action);
     }
   }
+  else if(action is LivesAction){
+    if(action is SetLivesAction){
+      state.lives = setLives(state.lives, action);
+    }
+  }
+  else if(action is MaxLexelAction){
+    if(action is SetMaxLexelAction){
+      state.maxLevel = setMaxLexel(state.maxLevel, action);
+    }
+  }
+  else if(action is GoldAction){
+    if(action is SetGoldAction){
+      state.gold = setGold(state.gold, action);
+    }
+  }
+  else if(action is PowerUpAction){
+    if(action is SetPowerUpAction){
+      state.powerUps = setPowerUp(state.powerUps, action);
+    }
+  }
   return state;
 }

@@ -109,12 +109,13 @@ class Player {
     if(attacking)
       return;
     attacking = true;
-    player.animation = Animation.spriteList(right ? attackSprites : attackRevSprites, loop: true, stepTime: 0.2);
+    double attackDuration = (800.0 - game.store.state.powerUps.attackSpeed * 50 > 200) ? (800.0 - game.store.state.powerUps.attackSpeed * 50) : 200;
+    player.animation = Animation.spriteList(right ? attackSprites : attackRevSprites, loop: true, stepTime: attackDuration/4000);
     run = false;
-    Future.delayed(Duration(milliseconds: 400), (){ 
+    Future.delayed(Duration(milliseconds: (attackDuration~/2)), (){ 
       Bullet bullet = Bullet(game, lastDirRight, false, player.x + player.width * (lastDirRight ? 1.1 : -0.5), player.y + player.height * 0.35);
       game.bullets.add(bullet);
-      Future.delayed(Duration(milliseconds: 400), (){ 
+      Future.delayed(Duration(milliseconds: (attackDuration~/2)), (){ 
         if(!run && !dead){
           idleAnim(lastDirRight);
         }
@@ -142,7 +143,7 @@ class Player {
     if(dead)
       return;
     moveTo = Offset(d.localPosition.dx - player.width / 2, d.localPosition.dy - player.height);
-    var speed = 5.0;
+    var speed = 5.0 + game.store.state.powerUps.movSpeed / 5;
     bool reverseX = moveTo.dx - player.x > 0;
     bool reverseY = moveTo.dy - player.y > 0;
     diffX = speed * (reverseX ? 1 : -1);

@@ -72,10 +72,10 @@ class Enemy {
       }
       else {
         //Round for better stopping conditions at the borders
-        if(double.parse((x - moveTo.dx).abs().toStringAsPrecision(2)) <= double.parse(diffX.abs().toStringAsPrecision(2))){
+        if(double.parse((x - moveTo.dx).abs().toStringAsPrecision(2)) <= double.parse(diffX.abs().toStringAsPrecision(2)) + 20){
           diffX = 0;
         }
-        if(double.parse((y - moveTo.dy).abs().toStringAsPrecision(2)) <= double.parse(diffY.abs().toStringAsPrecision(2))){
+        if(double.parse((y - moveTo.dy).abs().toStringAsPrecision(2)) <= double.parse(diffY.abs().toStringAsPrecision(2)) + 20){
           diffY = 0;
         }
         if(diffX == 0 && diffY == 0){
@@ -103,7 +103,7 @@ class Enemy {
       }      
     }
     else{
-      int clockAttackAnim = (60 - game.store.state.level * 1.5 > 20) ? 60 - (game.store.state.level * 1.5).toInt() : 20;
+      int clockAttackAnim = (60 - game.store.state.level > 20) ? 60 - game.store.state.level : 20;
       if(clock % clockAttackAnim == 1 && !run && !game.player.dead && !dead && !attacking){
         await attackAnim(game.player.player.x - player.x >= 0);
       }
@@ -118,7 +118,7 @@ class Enemy {
       return;
     }
     attacking = true;
-    double attackDuration = (800.0 - game.store.state.level * 25 > 200) ? (800.0 - game.store.state.level * 25) : 200;
+    double attackDuration = (800.0 - game.store.state.level * 10 > 200) ? (800.0 - game.store.state.level * 10) : 200;
     player.animation = Animation.spriteList(right ? attackSprites : attackRevSprites, loop: true, stepTime: attackDuration/4000);
     run = false;
     await Future.delayed(Duration(milliseconds: (attackDuration~/2)), () async { 
@@ -154,7 +154,7 @@ class Enemy {
     moveTo = Offset(move.dx - player.width / 2, move.dy - player.height);
 
     //Increase enemy speed with each difficulty
-    var speed = 4.5 + game.store.state.level / 10;
+    var speed = 4.5 + game.store.state.level / 15;
     bool reverseX = moveTo.dx - player.x > 0;
     bool reverseY = moveTo.dy - player.y > 0;
     diffX = speed * (reverseX ? 1 : -1);

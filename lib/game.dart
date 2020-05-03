@@ -19,7 +19,6 @@ class FlameRPGGame extends BaseGame {
   Store<AppState> store;
   double leftEnemySpanX;
   Size screenSize;
-  double tileSize;
   Player player;
   Image img;
   List<Bullet> bullets;
@@ -38,17 +37,16 @@ class FlameRPGGame extends BaseGame {
     
     //Centering with screenSize on Android causes bug where player is rendered offscreen.
     //Probably caused by the screen rotation.
-    player = Player(this, Offset(screenSize.width * 0.5, screenSize.height * 0.5));
+    player = Player(this, Offset(playerStartX(screenSize.width), playerStartY(screenSize.height)));
     bullets = [];
     enemybullets = [];
     //Keep at a fixed x
-    enemies = (store.state.level > 14) ? [Enemy(this, Offset(screenSize.width * 0.05, screenSize.height * 0.15)), Enemy(this, Offset(screenSize.width * 0.95 - player.player.width, screenSize.height * 0.25))] : [Enemy(this, Offset(screenSize.width * 0.05, screenSize.height * 0.15))];
+    enemies = (store.state.level > 14) ? [Enemy(this, Offset(enemyStartX(screenSize.width, 0), enemyStartX(screenSize.height, 1))), Enemy(this, Offset(enemyStartX(screenSize.width - player.player.width, 1), enemyStartY(screenSize.height)))] : [Enemy(this, Offset(enemyStartX(screenSize.width, 0), enemyStartY(screenSize.height)))];
     clock = 0;
   }
 
   void resize(Size size) {
     screenSize = size;
-    tileSize = screenSize.width / 9;
     super.resize(size);
   }
 
@@ -116,8 +114,25 @@ class FlameRPGGame extends BaseGame {
         enemies.forEach((element) => (element.dead) ? deadEnemies++ : null);
         if(!player.dead && deadEnemies != enemies.length){
           player.dead = true;
-          player.deadAnim(player.lastDirRight);
-          store.dispatch(SetWinAction(WinState.Lost));
+          player.deadAnim(player.lastDirRight); 
+          int lives = store.state.lives - 1;
+          store.dispatch(SetLivesAction(lives));
+          if(lives + store.state.powerUps.extraLives == 0)
+            store.dispatch(SetWinAction(WinState.Lost));
+          else{
+            Future.delayed(Duration(seconds: 2), (){
+              player.player.width = playerWidth;
+              player.dead = false;
+              player.idleAnim(player.lastDirRight); 
+              player.player.x = playerStartX(screenSize.width);
+              player.player.y = playerStartY(screenSize.height);
+              enemies.forEach((element) {
+                element.dead = false;
+                element.player.width = playerWidth;
+                element.player.y = screenSize.height * 0.2;
+              });
+            });
+          }
         }
         enemies.forEach((i) { 
           if(!i.dead)
