@@ -1,4 +1,4 @@
-package com.example.flamerpg
+package com.kaya.robotduel
 
 import io.flutter.embedding.android.FlutterActivity
 

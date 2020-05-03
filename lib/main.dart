@@ -14,7 +14,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_redux/flutter_redux.dart';
 import 'package:redux/redux.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'redux/reducers.dart';
 import 'redux/store.dart';
 
 void main() async {
@@ -86,7 +85,7 @@ void main() async {
 
   runApp(
     MaterialApp(
-      title: 'Flame RPG',
+      title: 'Robot Duel',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -112,18 +111,24 @@ class _AppState extends State<App> {
 
   bool startGame = false;
   FocusNode myFocusNode = FocusNode();
-  bool shownAd = false;
+  bool shownRewardAd = false;
+  bool viewedAnAd = false;
   MobileAdTargetingInfo adInfo = MobileAdTargetingInfo(keywords: ["robot", "game", "battle"]);
   bool lockBack = false;
   bool viewShop = false;
   PowerUp mypowerups = PowerUp(0, 0, 0);
   int cost = 0;
+  List<InterstitialAd> intAd = [];
+  bool viewHelp = false;
 
   @override
   initState(){
     super.initState();
     if(!kIsWeb){
-      FirebaseAdMob.instance.initialize(appId: iosAppId).then((value) => RewardedVideoAd.instance.load(adUnitId: production ? iosRewarded : RewardedVideoAd.testAdUnitId, targetingInfo: adInfo)).then((value) {});
+      FirebaseAdMob.instance.initialize(appId: appId).then((value) => RewardedVideoAd.instance.load(adUnitId: production ? rewardedId : RewardedVideoAd.testAdUnitId, targetingInfo: adInfo)).then((value) {
+        intAd.add(InterstitialAd(adUnitId: production ? interstitialId : InterstitialAd.testAdUnitId));
+        intAd[0].load();
+      });
       RewardedVideoAd.instance.listener = (RewardedVideoAdEvent event, {String rewardType, int rewardAmount}) {
         if (event == RewardedVideoAdEvent.rewarded) {
           store.dispatch(SetLivesAction(3));
@@ -136,7 +141,7 @@ class _AppState extends State<App> {
   Widget livesView(int lives){
     List<Icon> hearts = [];
     for(int i=0; i<lives; i++){
-      hearts.add(Icon(Icons.favorite, size: 28, color: Colors.red));
+      hearts.add(Icon(Icons.favorite, size: 24, color: Colors.red));
     }
 
     return Row(
@@ -177,9 +182,14 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
 
-    if(viewShop){
-      return StoreProvider(
-        store: widget.store,
+    if(viewHelp){
+      return WillPopScope(
+        onWillPop: () async {
+          setState(() {
+            viewHelp = false;
+          });
+          return false;
+        },
         child: Scaffold(
           body: Stack(
             children: <Widget>[
@@ -193,7 +203,7 @@ class _AppState extends State<App> {
                   icon: Icon(Icons.arrow_back_ios, size: 32, color: Colors.white70),
                   onPressed: () {
                     setState(() {
-                      viewShop = false;
+                      viewHelp = false;
                     });
                   },
                 ),
@@ -202,177 +212,233 @@ class _AppState extends State<App> {
                 alignment: Alignment.center,
                 child: Container(
                   color: Colors.black26,
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                  padding: EdgeInsets.symmetric(horizontal: 12),
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width * 0.8, 
                     height: MediaQuery.of(context).size.height,
                     child: SingleChildScrollView(
-                      child:  Column(
-                        children: <Widget>[
-                          Container(child: Text("Shop", style: TextStyle(color: Colors.white, fontSize: 26)), margin: EdgeInsets.only(bottom: 12),),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 4),
-                            child: Row(
-                              children: <Widget>[
-                                Text("Attack Speed:", style: TextStyle(color: Colors.white, fontSize: 20)),
-                                Flexible(child: Container(margin: EdgeInsets.symmetric(horizontal: 24), child: LinearProgressIndicator(value: mypowerups.attackSpeed != 0 ? mypowerups.attackSpeed / 10 : 0.02,))),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: <Widget>[
-                                Container(
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.black38),
-                                  padding: EdgeInsets.symmetric(vertical: 9, horizontal: 14),
-                                  child: Text("Cost: ${15 * (mypowerups.attackSpeed + 1)}", style: TextStyle(color: Colors.white, fontSize: 14))
-                                ),
-                                FlatButton(
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  color: Color.fromRGBO(155, 20, 20, 0.7),
-                                  onPressed: (){
-                                    if(mypowerups.attackSpeed == 10)
-                                      return;
-                                    setState(() {
-                                      cost += 15 * (mypowerups.attackSpeed + 1);
-                                      mypowerups.attackSpeed += 1;
-                                    });
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Text("Add", style: TextStyle(color: Colors.white, fontSize: 14)),
-                                      Icon(Icons.add, color: Colors.white, size: 14),
-                                    ],
-                                  )
-                                )
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 4),
-                            child: Row(
-                              children: <Widget>[
-                                Text("Movement Speed:", style: TextStyle(color: Colors.white, fontSize: 20)),
-                                Flexible(child: Container(margin: EdgeInsets.symmetric(horizontal: 24), child: LinearProgressIndicator(value: mypowerups.movSpeed != 0 ? mypowerups.movSpeed / 10 : 0.02,))),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 8),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: <Widget>[
-                                Container(
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.black38),
-                                  padding: EdgeInsets.symmetric(vertical: 9, horizontal: 14),
-                                  child: Text("Cost: ${15 * (mypowerups.movSpeed + 1)}", style: TextStyle(color: Colors.white, fontSize: 14))
-                                ),
-                                FlatButton( 
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  color: Color.fromRGBO(155, 20, 20, 0.7),
-                                  onPressed: (){
-                                    if(mypowerups.movSpeed == 10)
-                                      return;
-                                    setState(() {
-                                      cost += 15 * (mypowerups.movSpeed + 1);
-                                      mypowerups.movSpeed += 1;
-                                    });
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Text("Add", style: TextStyle(color: Colors.white, fontSize: 14)),
-                                      Icon(Icons.add, color: Colors.white, size: 14),
-                                    ],
-                                  )
-                                )
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 4),
-                            child: Row(
-                              children: <Widget>[
-                                Text("Extra Lives:", style: TextStyle(color: Colors.white, fontSize: 20)),
-                                Flexible(child: Container(margin: EdgeInsets.symmetric(horizontal: 24), child: LinearProgressIndicator(value: mypowerups.movSpeed != 0 ? mypowerups.extraLives / 3 : 0.02,))),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            margin: EdgeInsets.only(bottom: 4),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: <Widget>[
-                                Container(
-                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.black38),
-                                  padding: EdgeInsets.symmetric(vertical: 9, horizontal: 14),
-                                  child: Text("Cost: 300", style: TextStyle(color: Colors.white, fontSize: 14))
-                                ),
-                                FlatButton( 
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  color: Color.fromRGBO(155, 20, 20, 0.7),
-                                  onPressed: (){
-                                    if(mypowerups.extraLives == 3)
-                                      return;
-                                    setState(() {
-                                      cost += 300;
-                                      mypowerups.extraLives += 1;
-                                    });
-                                  },
-                                  child: Row(
-                                    children: <Widget>[
-                                      Text("Add", style: TextStyle(color: Colors.white, fontSize: 14)),
-                                      Icon(Icons.add, color: Colors.white, size: 14),
-                                    ],
-                                  )
-                                )
-                              ],
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              Container(
-                                child: FlatButton(
-                                  onPressed: () async {
-                                    if(cost > store.state.gold){
-                                      Fluttertoast.showToast(msg: "You do not have enough gold!");
-                                      return;
-                                    }
-                                    int gold = store.state.gold;
-                                    gold -= cost;
-                                    store.dispatch(SetPowerUpAction(mypowerups));
-                                    store.dispatch(SetGoldAction(gold));
-                                    SharedPreferences prefs = await SharedPreferences.getInstance();
-                                    await prefs.setInt("gold", gold);
-                                    await prefs.setInt('speedbuff', mypowerups.movSpeed);
-                                    await prefs.setInt('attackbuff', mypowerups.attackSpeed);
-                                    await prefs.setInt('extralives', mypowerups.extraLives);
-                                    setState(() {
-                                      viewShop = false;
-                                    });
-                                  },
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                                  color: Color.fromRGBO(25, 20, 200, 0.7),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: <Widget>[
-                                      Text("Buy for $cost gold!  ", style: TextStyle(color: Colors.white, fontSize: 18)),
-                                      Icon(Icons.store, color: Colors.white)
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                        ],
-                      )
-                    ),
-                  ),
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+                        child: Text("Fight enemy robots in Robot Duel! Gain gold with each enemy robot kill. Spend your gold to upgrade your character. The enemy robots get stronger each level. At level 5 another enemy robot spawns. As the levels get higher, the robot kills give more gold.", style: TextStyle(color: Colors.white, fontSize: 20),)
+                      ),
+                    )
+                  )
                 )
               )
             ]
+          ),
+        )
+      );
+    }
+
+
+    if(viewShop){
+      return StoreProvider(
+        store: widget.store,
+        child: WillPopScope(
+          onWillPop: () async {
+            setState(() {
+              viewShop = false;
+            });
+            return false;
+          },
+          child: Scaffold(
+            body: Stack(
+              children: <Widget>[
+                Positioned.fill(
+                  child: Image.asset("assets/images/background (1).png", fit: BoxFit.fill,),
+                ),
+                Positioned(
+                  left: 12,
+                  top: 12,
+                  child: IconButton(
+                    icon: Icon(Icons.arrow_back_ios, size: 32, color: Colors.white70),
+                    onPressed: () {
+                      setState(() {
+                        viewShop = false;
+                      });
+                    },
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.center,
+                  child: Container(
+                    color: Colors.black26,
+                    padding: EdgeInsets.symmetric(horizontal: 12),
+                    child: SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.8, 
+                      height: MediaQuery.of(context).size.height,
+                      child: SingleChildScrollView(
+                        child:  Column(
+                          children: <Widget>[
+                            Container(child: Text("Shop", style: TextStyle(color: Colors.white, fontSize: 26)), margin: EdgeInsets.symmetric(vertical: 12),),
+                            Container(
+                              margin: EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                children: <Widget>[
+                                  Text("Attack Speed:", style: TextStyle(color: Colors.white, fontSize: 20)),
+                                  Flexible(child: Container(margin: EdgeInsets.symmetric(horizontal: 24), child: LinearProgressIndicator(value: mypowerups.attackSpeed != 0 ? mypowerups.attackSpeed / 10 : 0.02,))),
+                                ],
+                              ),
+                            ),
+                            if(mypowerups.attackSpeed != 10)
+                              Container(
+                                margin: EdgeInsets.only(bottom: 4),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    Container(
+                                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.black38),
+                                      padding: EdgeInsets.symmetric(vertical: 9, horizontal: 14),
+                                      child: Text("Cost: ${40 * (mypowerups.attackSpeed + 1)}", style: TextStyle(color: Colors.white, fontSize: 14))
+                                    ),
+                                    FlatButton(
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      color: Color.fromRGBO(155, 20, 20, 0.7),
+                                      onPressed: (){
+                                        if(mypowerups.attackSpeed == 10)
+                                          return;
+                                        setState(() {
+                                          cost += 40 * (mypowerups.attackSpeed + 1);
+                                          mypowerups.attackSpeed += 1;
+                                        });
+                                      },
+                                      child: Row(
+                                        children: <Widget>[
+                                          Text("Upgrade", style: TextStyle(color: Colors.white, fontSize: 14)),
+                                          Icon(Icons.add, color: Colors.white, size: 14),
+                                        ],
+                                      )
+                                    )
+                                  ],
+                                ),
+                              ),
+                            Container(
+                              margin: EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                children: <Widget>[
+                                  Text("Movement Speed:", style: TextStyle(color: Colors.white, fontSize: 20)),
+                                  Flexible(child: Container(margin: EdgeInsets.symmetric(horizontal: 24), child: LinearProgressIndicator(value: mypowerups.movSpeed != 0 ? mypowerups.movSpeed / 10 : 0.02,))),
+                                ],
+                              ),
+                            ),
+                            if(mypowerups.movSpeed != 10)
+                              Container(
+                                margin: EdgeInsets.only(bottom: 4),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    Container(
+                                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.black38),
+                                      padding: EdgeInsets.symmetric(vertical: 9, horizontal: 14),
+                                      child: Text("Cost: ${40 * (mypowerups.movSpeed + 1)}", style: TextStyle(color: Colors.white, fontSize: 14))
+                                    ),
+                                    FlatButton( 
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      color: Color.fromRGBO(155, 20, 20, 0.7),
+                                      onPressed: (){
+                                        if(mypowerups.movSpeed == 10)
+                                          return;
+                                        setState(() {
+                                          cost += 40 * (mypowerups.movSpeed + 1);
+                                          mypowerups.movSpeed += 1;
+                                        });
+                                      },
+                                      child: Row(
+                                        children: <Widget>[
+                                          Text("Upgrade", style: TextStyle(color: Colors.white, fontSize: 14)),
+                                          Icon(Icons.add, color: Colors.white, size: 14),
+                                        ],
+                                      )
+                                    )
+                                  ],
+                                ),
+                              ),
+                            Container(
+                              margin: EdgeInsets.only(bottom: 8),
+                              child: Row(
+                                children: <Widget>[
+                                  Text("Extra Lives:", style: TextStyle(color: Colors.white, fontSize: 20)),
+                                  Flexible(child: Container(margin: EdgeInsets.symmetric(horizontal: 24), child: LinearProgressIndicator(value: mypowerups.extraLives != 0 ? mypowerups.extraLives / 3 : 0.02,))),
+                                ],
+                              ),
+                            ),
+                            if(mypowerups.extraLives != 3)
+                              Container(
+                                margin: EdgeInsets.only(bottom: 4),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                      Container(
+                                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.black38),
+                                        padding: EdgeInsets.symmetric(vertical: 9, horizontal: 14),
+                                        child: Text("Cost: 400", style: TextStyle(color: Colors.white, fontSize: 14))
+                                      ),
+                                    FlatButton( 
+                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                      color: Color.fromRGBO(155, 20, 20, 0.7),
+                                      onPressed: (){
+                                        if(mypowerups.extraLives == 3)
+                                          return;
+                                        setState(() {
+                                          cost += 400;
+                                          mypowerups.extraLives += 1;
+                                        });
+                                      },
+                                      child: Row(
+                                        children: <Widget>[
+                                          Text("Upgrade", style: TextStyle(color: Colors.white, fontSize: 14)),
+                                          Icon(Icons.add, color: Colors.white, size: 14),
+                                        ],
+                                      )
+                                    )
+                                  ],
+                                ),
+                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Container(
+                                  child: FlatButton(
+                                    onPressed: () async {
+                                      if(cost > store.state.gold){
+                                        Fluttertoast.showToast(msg: "You do not have enough gold!");
+                                        return;
+                                      }
+                                      int gold = store.state.gold;
+                                      gold -= cost;
+                                      store.dispatch(SetPowerUpAction(mypowerups));
+                                      store.dispatch(SetGoldAction(gold));
+                                      SharedPreferences prefs = await SharedPreferences.getInstance();
+                                      await prefs.setInt("gold", gold);
+                                      await prefs.setInt('speedbuff', mypowerups.movSpeed);
+                                      await prefs.setInt('attackbuff', mypowerups.attackSpeed);
+                                      await prefs.setInt('extralives', mypowerups.extraLives);
+                                      setState(() {
+                                        viewShop = false;
+                                      });
+                                    },
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                    color: Color.fromRGBO(25, 20, 200, 0.7),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        Text("Buy for $cost gold!  ", style: TextStyle(color: Colors.white, fontSize: 18)),
+                                        Icon(Icons.store, color: Colors.white)
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            )
+                          ],
+                        )
+                      ),
+                    ),
+                  )
+                )
+              ]
+            ),
           ),
         ),
       );
@@ -392,12 +458,25 @@ class _AppState extends State<App> {
                  child: Align(
                    alignment: Alignment.topCenter,
                    child: Container(
-                     padding: EdgeInsets.symmetric(horizontal: 24, vertical: 4),
-                     decoration: BoxDecoration(color: Colors.black45, borderRadius: BorderRadius.circular(24), border: Border.all(color: Colors.white, width: 1)),
-                     child: Text("Robot Duel", textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 48, ),)
+                     padding: EdgeInsets.symmetric(horizontal: 28, vertical: 8),
+                     decoration: BoxDecoration(color: Color.fromRGBO(0, 0, 0, 0.75), borderRadius: BorderRadius.circular(24), border: Border.all(color: Colors.white, width: 1)),
+                     child: Text("Robot Duel", textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 44, ),)
                     ),
                  ),
-               ),
+              ),
+              Positioned(
+                left: 12,
+                top: 12,
+                child: IconButton(
+                  icon: Icon(Icons.help_outline, color: Colors.white70,),
+                  iconSize: 32,
+                  onPressed: () {
+                    setState(() {
+                      viewHelp = true;
+                    });
+                  },
+                )
+              ),
               Positioned(
                 right: 12,
                 top: 12,
@@ -442,21 +521,22 @@ class _AppState extends State<App> {
                  alignment: Alignment.bottomCenter,
                  child: Container(
                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), border: Border.all(color: Colors.white, width: 1)),
-                   margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.12),
+                   margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.15),
                    child: FlatButton(
                     onPressed: (){
-                      widget.game = FlameRPGGame(widget.game.size, widget.game.store);
+                      widget.game = FlameRPGGame(Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height), widget.game.store);
                       store.dispatch(SetWinAction(WinState.Playing));
                       store.dispatch(SetLivesAction(3));
                       store.dispatch(SetLevelAction(1));
                       setState(() {
+                        viewedAnAd = false;
                         startGame = true;
                       });
                     },
-                    padding: EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+                    padding: EdgeInsets.symmetric(horizontal: 28, vertical: 8),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                    color: Colors.black45,
-                    child: Text("Play", textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 40, letterSpacing: 1.1, ),)
+                    color: Color.fromRGBO(0, 0, 0, 0.75),
+                    child: Text("Play", textAlign: TextAlign.center, style: TextStyle(color: Colors.white, fontSize: 36, letterSpacing: 1.1, ),)
                     ),
                  ),
                )
@@ -467,203 +547,226 @@ class _AppState extends State<App> {
     }
     return StoreProvider(
       store: widget.store,
-      child:  Scaffold(
-        body: Stack(
-          children: <Widget>[
-            if(kIsWeb)
-              Positioned.fill(
-                child: RawKeyboardListener(
-                  focusNode: myFocusNode,
-                  autofocus: true,
-                  onKey: (key){
-                    if(widget.game.player.dead || widget.game.player.run)
-                      return;
-                    double speed = MediaQuery.of(context).size.height * 0.05 + store.state.powerUps.movSpeed * MediaQuery.of(context).size.height * 0.0025;
-                    if(key.physicalKey == PhysicalKeyboardKey.arrowUp){
-                      widget.game.onTapUp(TapUpDetails(globalPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2, widget.game.player.player.y + widget.game.player.player.height - speed), localPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2, widget.game.player.player.y + widget.game.player.player.height - speed)));
-                    }
-                    else if(key.physicalKey == PhysicalKeyboardKey.arrowLeft){
-                      widget.game.onTapUp(TapUpDetails(globalPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2 - speed, widget.game.player.player.y + widget.game.player.player.height), localPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2 - speed, widget.game.player.player.y + widget.game.player.player.height)));      
-                      widget.game.player.lastDirRight = false;            
-                    }
-                    else if(key.physicalKey == PhysicalKeyboardKey.arrowRight){
-                      widget.game.onTapUp(TapUpDetails(globalPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2 + speed, widget.game.player.player.y + widget.game.player.player.height), localPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2 + speed, widget.game.player.player.y + widget.game.player.player.height)));                  
-                      widget.game.player.lastDirRight = true;            
-                    }
-                    else if(key.physicalKey == PhysicalKeyboardKey.arrowDown){
-                      widget.game.onTapUp(TapUpDetails(globalPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2, widget.game.player.player.y + widget.game.player.player.height + speed), localPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2, widget.game.player.player.y + widget.game.player.player.height + speed)));                  
+      child:  WillPopScope(
+        onWillPop: () async {
+          if(lockBack)
+            return false;
+          setState(() {
+            startGame = false;
+          });
+          return false;
+        },
+        child: Scaffold(
+          body: Stack(
+            children: <Widget>[
+              if(kIsWeb)
+                Positioned.fill(
+                  child: RawKeyboardListener(
+                    focusNode: myFocusNode,
+                    autofocus: true,
+                    onKey: (key){
+                      if(widget.game.player.dead || widget.game.player.run)
+                        return;
+                      double speed = MediaQuery.of(context).size.height * 0.05 + store.state.powerUps.movSpeed * MediaQuery.of(context).size.height * 0.0025;
+                      if(key.physicalKey == PhysicalKeyboardKey.arrowUp){
+                        widget.game.onTapUp(TapUpDetails(globalPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2, widget.game.player.player.y + widget.game.player.player.height - speed), localPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2, widget.game.player.player.y + widget.game.player.player.height - speed)));
+                      }
+                      else if(key.physicalKey == PhysicalKeyboardKey.arrowLeft){
+                        widget.game.onTapUp(TapUpDetails(globalPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2 - speed, widget.game.player.player.y + widget.game.player.player.height), localPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2 - speed, widget.game.player.player.y + widget.game.player.player.height)));      
+                        widget.game.player.lastDirRight = false;            
+                      }
+                      else if(key.physicalKey == PhysicalKeyboardKey.arrowRight){
+                        widget.game.onTapUp(TapUpDetails(globalPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2 + speed, widget.game.player.player.y + widget.game.player.player.height), localPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2 + speed, widget.game.player.player.y + widget.game.player.player.height)));                  
+                        widget.game.player.lastDirRight = true;            
+                      }
+                      else if(key.physicalKey == PhysicalKeyboardKey.arrowDown){
+                        widget.game.onTapUp(TapUpDetails(globalPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2, widget.game.player.player.y + widget.game.player.player.height + speed), localPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2, widget.game.player.player.y + widget.game.player.player.height + speed)));                  
 
-                    }
-                    else if(key.physicalKey == PhysicalKeyboardKey.keyA || key.physicalKey == PhysicalKeyboardKey.space){
-                      widget.game.player.attackAnim(widget.game.player.lastDirRight);
-                    }
-                  },
+                      }
+                      else if(key.physicalKey == PhysicalKeyboardKey.keyA || key.physicalKey == PhysicalKeyboardKey.space){
+                        widget.game.player.attackAnim(widget.game.player.lastDirRight);
+                      }
+                    },
+                    child: GestureDetector(
+                      onTapUp: widget.game.onTapUp,
+                      child: widget.game.widget,
+                    ),
+                  ),
+                ),
+              if(!kIsWeb)
+                Positioned.fill(
                   child: GestureDetector(
-                    onTapUp: widget.game.onTapUp,
-                    child: widget.game.widget,
+                      onTapUp: widget.game.onTapUp,
+                      child: widget.game.widget,
+                    ),
                   ),
-                ),
-              ),
-            if(!kIsWeb)
-              Positioned.fill(
-                child: GestureDetector(
-                    onTapUp: widget.game.onTapUp,
-                    child: widget.game.widget,
-                  ),
-                ),
-            Positioned(
-              left: 12,
-              top: 12,
-              child: IconButton(
-                icon: Icon(Icons.arrow_back_ios, size: 32, color: Colors.white70),
-                onPressed: () {
-                  if(lockBack)
-                    return;
-                  store.dispatch(SetWinAction(WinState.Playing));
-                  setState(() {
-                    startGame = false;
-                  });
-                },
-              ),
-            ),
-            Positioned(
-              left: 8,
-              bottom: 8,
-              child: IconButton(
-                icon: Icon(widget.audioOn ? Icons.music_note : Icons.close, size: 28, color: Colors.white70),
-                onPressed: () {
-                  if(widget.audioOn)
-                    Flame.bgm.pause();
-                  else
-                    Flame.bgm.resume();
-                  setState(() {
-                    widget.audioOn = !widget.audioOn;
-                  });
-                },
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: IgnorePointer(
-                child: Container(
-                  padding: EdgeInsets.only(bottom: 12),
-                  child: StoreConnector<AppState, int>(
-                    converter: (store) => store.state.level,
-                    builder: (context, level) {
-                      return Text("Level: $level", style: TextStyle(color: Colors.white, fontSize: 16));    
-                    }
-                  ),
-                ),
-              ) 
-            ),
-            Positioned(
-              right: 20,
-              bottom: 12,
-              child: IconButton(
-                icon: Icon(Icons.crop_square, size: 40, color: Colors.white),
-                onPressed: () {
-                  if(!widget.game.player.dead)
-                    widget.game.player.attackAnim(widget.game.player.lastDirRight);
-                },
-              ),
-            ),
-            Positioned(
-              right: 12,
-              top: 12,
-              child: IgnorePointer(
-                child: StoreConnector<AppState, int>(
-                  converter: (store) => store.state.lives + store.state.powerUps.extraLives,
-                  builder: (context, lives){
-                    return livesView(lives);
+              Positioned(
+                left: 12,
+                top: 12,
+                child: IconButton(
+                  icon: Icon(Icons.arrow_back_ios, size: 32, color: Colors.white70),
+                  onPressed: () {
+                    if(lockBack)
+                      return;
+                    store.dispatch(SetWinAction(WinState.Playing));
+                    setState(() {
+                      startGame = false;
+                    });
                   },
                 ),
               ),
-            ),
-            StoreConnector<AppState, WinState>(
-              converter: (store) => store.state.win,
-              distinct: true,
-              onDidChange: (WinState win) async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.setInt("gold", store.state.gold);
-                if(win != WinState.Playing){
-                  store.dispatch(SetGoldAction(store.state.gold + (1 + store.state.level % 5)));
-                  if(win == WinState.Won){
-                    var level = store.state.level + 1;
-                    if(level > store.state.maxLevel)
-                      store.dispatch(SetMaxLexelAction(level));
-                    store.dispatch(IncLevelAction());
-                    await prefs.setInt('level', level);
-                    await restart(4, isNextLexel: true); 
-                  }
-                  else {
-                    if(shownAd || kIsWeb){
-                      await restart(6, isNextLexel: false);
-                      setState(() {
-                        startGame = false;
-                      });
+              Positioned(
+                left: 8,
+                bottom: 8,
+                child: IconButton(
+                  icon: Icon(widget.audioOn ? Icons.music_note : Icons.close, size: 28, color: Colors.white70),
+                  onPressed: () {
+                    if(widget.audioOn)
+                      Flame.bgm.pause();
+                    else
+                      Flame.bgm.resume();
+                    setState(() {
+                      widget.audioOn = !widget.audioOn;
+                    });
+                  },
+                ),
+              ),
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: IgnorePointer(
+                  child: Container(
+                    padding: EdgeInsets.only(bottom: 12),
+                    child: StoreConnector<AppState, int>(
+                      converter: (store) => store.state.level,
+                      builder: (context, level) {
+                        return Text("Level: $level", style: TextStyle(color: Colors.white, fontSize: 16));    
+                      }
+                    ),
+                  ),
+                ) 
+              ),
+              Positioned(
+                right: 30,
+                bottom: 30,
+                child: IconButton(
+                  icon: Icon(Icons.crop_square, size: 60, color: Colors.white),
+                  onPressed: () {
+                    if(!widget.game.player.dead)
+                      widget.game.player.attackAnim(widget.game.player.lastDirRight);
+                  },
+                ),
+              ),
+              Positioned(
+                right: 12,
+                top: 12,
+                child: IgnorePointer(
+                  child: StoreConnector<AppState, int>(
+                    converter: (store) => store.state.lives + store.state.powerUps.extraLives,
+                    builder: (context, lives){
+                      return livesView(lives);
+                    },
+                  ),
+                ),
+              ),
+              StoreConnector<AppState, WinState>(
+                converter: (store) => store.state.win,
+                distinct: true,
+                onDidChange: (WinState win) async {
+                  SharedPreferences prefs = await SharedPreferences.getInstance();
+                  await prefs.setInt("gold", store.state.gold);
+                  if(win != WinState.Playing){
+                    store.dispatch(SetGoldAction(store.state.gold + (1 + store.state.level % 5)));
+                    if(win == WinState.Won){
+                      var level = store.state.level + 1;
+                      if(level > store.state.maxLevel)
+                        store.dispatch(SetMaxLexelAction(level));
+                      store.dispatch(IncLevelAction());
+                      await prefs.setInt('level', level);
+                      await restart(4, isNextLexel: true); 
                     }
                     else {
-                      try {
-                        bool watchAd = await showDialog<bool>(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (BuildContext context) {
-                            return AlertDialog(
-                              title: Text('Game Over'),
-                              content: const Text('You can watch an ad to get more lives!'),
-                              actions: <Widget>[
-                                FlatButton(
-                                  child: Text('Go Back'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop(false);
-                                  },
-                                ),
-                                FlatButton(
-                                  child: Text('Watch Ad'),
-                                  onPressed: () {
-                                    Navigator.of(context).pop(true);
-                                  },
-                                ),
-                              ],
-                            );
-                          },
-                        );
-                        if(watchAd){
-                          await RewardedVideoAd.instance.show();
-                          setState(() {
-                            shownAd = true;
-                          });
-                          //Load another ad for next game
-                        }
-                        else {
-                          setState(() {
-                            startGame = false;
-                          });
-                        }
-                      } catch(e) {
-                        print(e);
+                      if(kIsWeb || viewedAnAd){
+                        await restart(6, isNextLexel: false);
                         setState(() {
                           startGame = false;
                         });
                       }
+                      else {
+                        try {
+                          bool watchAd = await showDialog<bool>(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('Game Over'),
+                                content: const Text('You can watch an ad to get more lives!'),
+                                actions: <Widget>[
+                                  FlatButton(
+                                    child: Text('Go Back'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(false);
+                                    },
+                                  ),
+                                  FlatButton(
+                                    child: Text('Watch Ad'),
+                                    onPressed: () {
+                                      Navigator.of(context).pop(true);
+                                    },
+                                  ),
+                                ],
+                              );
+                            },
+                          );
+                          if(watchAd){
+                            if(!shownRewardAd){
+                              await RewardedVideoAd.instance.show();
+                              setState(() {
+                                shownRewardAd = true;
+                                viewedAnAd = true;
+                              });
+                            }
+                            else {
+                              intAd.add(InterstitialAd(adUnitId: production ? interstitialId : InterstitialAd.testAdUnitId));
+                              intAd[intAd.length-1].load();
+                              await intAd[intAd.length-1].show();
+                              intAd.add(InterstitialAd(adUnitId: production ? interstitialId : InterstitialAd.testAdUnitId));
+                              store.dispatch(SetLivesAction(3));
+                              restart(4, isNextLexel: false);
+                              setState(() {
+                                viewedAnAd = true;
+                              });
+                            }
+                          }
+                          else {
+                            setState(() {
+                              startGame = false;
+                            });
+                          }
+                        } catch(e) {
+                          print(e);
+                          setState(() {
+                            startGame = false;
+                          });
+                        }
+                      }
                     }
                   }
+                },
+                builder: (context, win) {
+                  if(win != WinState.Playing)
+                    return Align(
+                      alignment: Alignment.center,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: Colors.black26),
+                          child: Text(win == WinState.Won ? "You won!" : "You Lost!", style: TextStyle(color: Colors.white, fontSize: 24)),
+                        )
+                      );
+                  return Container();
                 }
-              },
-              builder: (context, win) {
-                if(win != WinState.Playing)
-                  return Align(
-                    alignment: Alignment.center,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(24), color: Colors.black26),
-                        child: Text(win == WinState.Won ? "You won!" : "You Lost!", style: TextStyle(color: Colors.white, fontSize: 24)),
-                      )
-                    );
-                return Container();
-              }
-            )
-          ],
+              )
+            ],
+          ),
         ),
       ),
     );
