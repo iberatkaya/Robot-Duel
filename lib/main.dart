@@ -448,7 +448,7 @@ class _AppState extends State<App> {
                       widget.game = FlameRPGGame(widget.game.size, widget.game.store);
                       store.dispatch(SetWinAction(WinState.Playing));
                       store.dispatch(SetLivesAction(3));
-                      store.dispatch(SetLevelAction(4));
+                      store.dispatch(SetLevelAction(1));
                       setState(() {
                         startGame = true;
                       });
