@@ -12,6 +12,9 @@
 lib/ads.dart
 ios/GoogleService-Info.plist
 android/app/google-services.json
+android/key.properties
+*.keystore
+
 
 # IntelliJ related
 *.iml
