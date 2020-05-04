@@ -20,7 +20,7 @@ double playerStartY(double height) {
 }
 double enemyStartX(double width, int id) {
   if(id == 0)
-    return width * 0.05;
+    return width * 0.025;
   else if(id == 1)
     return width * 0.95;
   else

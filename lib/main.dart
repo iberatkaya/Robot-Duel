@@ -134,6 +134,11 @@ class _AppState extends State<App> {
           store.dispatch(SetLivesAction(3));
           restart(4, isNextLexel: false);
         }
+        else if(event == RewardedVideoAdEvent.closed){
+          setState(() {
+            startGame = false;
+          });
+        }
       };
     }
   }
@@ -164,7 +169,7 @@ class _AppState extends State<App> {
       widget.game.player.player.y = playerStartY(widget.game.screenSize.height);
       widget.game.player.player.width = playerWidth;
       widget.game.player.idleAnim(widget.game.player.lastDirRight);
-      if(store.state.level == 5 && widget.game.enemies.length != 2){
+      if(store.state.level == 10 && widget.game.enemies.length != 2){
         widget.game.enemies.add(Enemy(widget.game, Offset(widget.game.screenSize.width * 0.95 - widget.game.player.player.width, widget.game.screenSize.height * 0.25)));
       }
       widget.game.enemies.forEach((element) {
@@ -465,8 +470,8 @@ class _AppState extends State<App> {
                  ),
               ),
               Positioned(
-                left: 12,
-                top: 12,
+                left: 8,
+                top: 8,
                 child: IconButton(
                   icon: Icon(Icons.help_outline, color: Colors.white70,),
                   iconSize: 32,
@@ -673,9 +678,9 @@ class _AppState extends State<App> {
                 distinct: true,
                 onDidChange: (WinState win) async {
                   SharedPreferences prefs = await SharedPreferences.getInstance();
-                  await prefs.setInt("gold", store.state.gold);
                   if(win != WinState.Playing){
-                    store.dispatch(SetGoldAction(store.state.gold + (1 + store.state.level % 5)));
+                    store.dispatch(SetGoldAction(store.state.gold + (1 + store.state.level ~/ 5)));
+                    await prefs.setInt("gold", store.state.gold);
                     if(win == WinState.Won){
                       var level = store.state.level + 1;
                       if(level > store.state.maxLevel)
@@ -744,6 +749,7 @@ class _AppState extends State<App> {
                           }
                         } catch(e) {
                           print(e);
+                          Fluttertoast.showToast(msg: "An ad could not be found!");
                           setState(() {
                             startGame = false;
                           });
