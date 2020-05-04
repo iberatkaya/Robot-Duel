@@ -134,11 +134,6 @@ class _AppState extends State<App> {
           store.dispatch(SetLivesAction(3));
           restart(4, isNextLexel: false);
         }
-        else if(event == RewardedVideoAdEvent.closed){
-          setState(() {
-            startGame = false;
-          });
-        }
       };
     }
   }
