@@ -143,7 +143,7 @@ const RESOURCES = {
 "assets/packages/cupertino_icons/assets/CupertinoIcons.ttf": "115e937bb829a890521f72d2e664b632",
 "assets/LICENSE": "71e276be7dd4ed8a9289f66d4ce285f4",
 "assets/fonts/MaterialIcons-Regular.ttf": "56d3ffdef7a25659eab6a68a3fbfaf16",
-"main.dart.js": "c93dfd2e8943fdccbd9b5e0581be3120",
+"main.dart.js": "979422a4d0d7875a85dfe8d9abae6569",
 "favicon.png": "5dcef449791fa27946b3d35ad8803796",
 "manifest.json": "bd6d9574c9753f2b3012d14f5ee441fb",
 "icons/Icon-512.png": "96e752610906ba2a93c65f8abe1645f1",

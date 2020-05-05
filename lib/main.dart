@@ -571,7 +571,7 @@ class _AppState extends State<App> {
                     onKey: (key){
                       if(widget.game.player.dead || widget.game.player.run)
                         return;
-                      double speed = MediaQuery.of(context).size.height * 0.05 + store.state.powerUps.movSpeed * MediaQuery.of(context).size.height * 0.0025;
+                      double speed = MediaQuery.of(context).size.height * 0.08 + store.state.powerUps.movSpeed * MediaQuery.of(context).size.height * 0.08;
                       if(key.physicalKey == PhysicalKeyboardKey.arrowUp){
                         widget.game.onTapUp(TapUpDetails(globalPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2, widget.game.player.player.y + widget.game.player.player.height - speed), localPosition: Offset(widget.game.player.player.x + widget.game.player.player.width / 2, widget.game.player.player.y + widget.game.player.player.height - speed)));
                       }
