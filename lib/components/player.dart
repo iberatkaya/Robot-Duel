@@ -109,7 +109,7 @@ class Player {
     if(attacking)
       return;
     attacking = true;
-    double attackDuration = (800.0 - game.store.state.powerUps.attackSpeed * 50 > 200) ? (800.0 - game.store.state.powerUps.attackSpeed * 50) : 200;
+    double attackDuration = (800.0 - game.store.state.powerUps.attackSpeed * 60 > 200) ? (800.0 - game.store.state.powerUps.attackSpeed * 60) : 200;
     player.animation = Animation.spriteList(right ? attackSprites : attackRevSprites, loop: true, stepTime: attackDuration/4000);
     run = false;
     Future.delayed(Duration(milliseconds: (attackDuration~/2)), (){ 
@@ -143,7 +143,7 @@ class Player {
     if(dead)
       return;
     moveTo = Offset(d.localPosition.dx - player.width / 2, d.localPosition.dy - player.height);
-    var speed = 5.0 + game.store.state.powerUps.movSpeed / 5;
+    var speed = 5.0 + game.store.state.powerUps.movSpeed / 4;
     bool reverseX = moveTo.dx - player.x > 0;
     bool reverseY = moveTo.dy - player.y > 0;
     diffX = speed * (reverseX ? 1 : -1);

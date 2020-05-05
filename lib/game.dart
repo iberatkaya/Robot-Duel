@@ -41,7 +41,7 @@ class FlameRPGGame extends BaseGame {
     bullets = [];
     enemybullets = [];
     //Keep at a fixed x
-    enemies = (store.state.level > 14) ? [Enemy(this, Offset(enemyStartX(screenSize.width, 0), enemyStartX(screenSize.height, 1))), Enemy(this, Offset(enemyStartX(screenSize.width - player.player.width, 1), enemyStartY(screenSize.height)))] : [Enemy(this, Offset(enemyStartX(screenSize.width, 0), enemyStartY(screenSize.height)))];
+    enemies = (store.state.level > 14) ? [Enemy(this, Offset(enemyStartX(screenSize.width, 0), enemyStartY(screenSize.height))), Enemy(this, Offset(enemyStartX(screenSize.width - player.player.width, 1), enemyStartY(screenSize.height)))] : [Enemy(this, Offset(enemyStartX(screenSize.width, 0), enemyStartY(screenSize.height)))];
     clock = 0;
   }
 

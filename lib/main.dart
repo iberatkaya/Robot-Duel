@@ -163,8 +163,10 @@ class _AppState extends State<App> {
       widget.game.player.player.x = playerStartX(widget.game.screenSize.width);
       widget.game.player.player.y = playerStartY(widget.game.screenSize.height);
       widget.game.player.player.width = playerWidth;
+      widget.game.player.diffX = 0;
+      widget.game.player.diffY = 0;
       widget.game.player.idleAnim(widget.game.player.lastDirRight);
-      if(store.state.level == 10 && widget.game.enemies.length != 2){
+      if(store.state.level == 15 && widget.game.enemies.length != 2){
         widget.game.enemies.add(Enemy(widget.game, Offset(widget.game.screenSize.width * 0.95 - widget.game.player.player.width, widget.game.screenSize.height * 0.25)));
       }
       widget.game.enemies.forEach((element) {
@@ -290,7 +292,7 @@ class _AppState extends State<App> {
                                     Container(
                                       decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.black38),
                                       padding: EdgeInsets.symmetric(vertical: 9, horizontal: 14),
-                                      child: Text("Cost: ${40 * (mypowerups.attackSpeed + 1)}", style: TextStyle(color: Colors.white, fontSize: 14))
+                                      child: Text("Cost: ${30 * (mypowerups.attackSpeed + 1)}", style: TextStyle(color: Colors.white, fontSize: 14))
                                     ),
                                     FlatButton(
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -299,7 +301,7 @@ class _AppState extends State<App> {
                                         if(mypowerups.attackSpeed == 10)
                                           return;
                                         setState(() {
-                                          cost += 40 * (mypowerups.attackSpeed + 1);
+                                          cost += 30 * (mypowerups.attackSpeed + 1);
                                           mypowerups.attackSpeed += 1;
                                         });
                                       },
@@ -331,7 +333,7 @@ class _AppState extends State<App> {
                                     Container(
                                       decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.black38),
                                       padding: EdgeInsets.symmetric(vertical: 9, horizontal: 14),
-                                      child: Text("Cost: ${40 * (mypowerups.movSpeed + 1)}", style: TextStyle(color: Colors.white, fontSize: 14))
+                                      child: Text("Cost: ${30 * (mypowerups.movSpeed + 1)}", style: TextStyle(color: Colors.white, fontSize: 14))
                                     ),
                                     FlatButton( 
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -340,7 +342,7 @@ class _AppState extends State<App> {
                                         if(mypowerups.movSpeed == 10)
                                           return;
                                         setState(() {
-                                          cost += 40 * (mypowerups.movSpeed + 1);
+                                          cost += 30 * (mypowerups.movSpeed + 1);
                                           mypowerups.movSpeed += 1;
                                         });
                                       },
@@ -506,7 +508,7 @@ class _AppState extends State<App> {
                 bottom: 8,
                 child: IconButton(
                   icon: Icon(widget.audioOn ? Icons.music_note : Icons.close, size: 28, color: Colors.white70),
-                  onPressed: () {
+                  onPressed: () async {
                     if(widget.audioOn)
                       Flame.bgm.pause();
                     else
@@ -514,6 +516,8 @@ class _AppState extends State<App> {
                     setState(() {
                       widget.audioOn = !widget.audioOn;
                     });
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool("audio", !widget.audioOn);
                   },
                 ),
               ),
@@ -620,7 +624,7 @@ class _AppState extends State<App> {
                 bottom: 8,
                 child: IconButton(
                   icon: Icon(widget.audioOn ? Icons.music_note : Icons.close, size: 28, color: Colors.white70),
-                  onPressed: () {
+                  onPressed: () async {
                     if(widget.audioOn)
                       Flame.bgm.pause();
                     else
@@ -628,6 +632,8 @@ class _AppState extends State<App> {
                     setState(() {
                       widget.audioOn = !widget.audioOn;
                     });
+                    SharedPreferences prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool("audio", !widget.audioOn);
                   },
                 ),
               ),
@@ -646,10 +652,10 @@ class _AppState extends State<App> {
                 ) 
               ),
               Positioned(
-                right: 30,
-                bottom: 30,
+                right: 40,
+                bottom: 40,
                 child: IconButton(
-                  icon: Icon(Icons.crop_square, size: 60, color: Colors.white),
+                  icon: Icon(Icons.crop_square, size: 50, color: Colors.white),
                   onPressed: () {
                     if(!widget.game.player.dead)
                       widget.game.player.attackAnim(widget.game.player.lastDirRight);

@@ -103,7 +103,7 @@ class Enemy {
       }      
     }
     else{
-      int clockAttackAnim = (60 - game.store.state.level > 20) ? 60 - game.store.state.level : 20;
+      int clockAttackAnim = (80 - game.store.state.level > 20) ? 80 - game.store.state.level : 20;
       if(clock % clockAttackAnim == 1 && !run && !game.player.dead && !dead && !attacking){
         await attackAnim(game.player.player.x - player.x >= 0);
       }
@@ -118,7 +118,7 @@ class Enemy {
       return;
     }
     attacking = true;
-    double attackDuration = (800.0 - game.store.state.level * 10 > 200) ? (800.0 - game.store.state.level * 10) : 200;
+    double attackDuration = (800.0 - game.store.state.level * 5 > 200) ? (800.0 - game.store.state.level * 5) : 200;
     player.animation = Animation.spriteList(right ? attackSprites : attackRevSprites, loop: true, stepTime: attackDuration/4000);
     run = false;
     await Future.delayed(Duration(milliseconds: (attackDuration~/2)), () async { 
@@ -154,7 +154,7 @@ class Enemy {
     moveTo = Offset(move.dx - player.width / 2, move.dy - player.height);
 
     //Increase enemy speed with each difficulty
-    var speed = 4.5 + game.store.state.level / 15;
+    var speed = 4.5 + game.store.state.level / 20;
     bool reverseX = moveTo.dx - player.x > 0;
     bool reverseY = moveTo.dy - player.y > 0;
     diffX = speed * (reverseX ? 1 : -1);
