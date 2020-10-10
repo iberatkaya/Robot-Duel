@@ -6,10 +6,8 @@
 
 <p align="center">
     <img alt="Screenshot" src="https://raw.githubusercontent.com/iberatkaya/Robot-Duel/master/screenshots/0.jpg" width="500" height="300">
-
     <img alt="Screenshot" src="https://raw.githubusercontent.com/iberatkaya/Robot-Duel/master/screenshots/1.jpg" width="500" height="300" style="margin-top: 2px; margin-bottom: 2px">
     <img alt="Screenshot" src="https://raw.githubusercontent.com/iberatkaya/Robot-Duel/master/screenshots/2.jpg" width="500" height="300">
-
 </p>
 
 ## Authors
